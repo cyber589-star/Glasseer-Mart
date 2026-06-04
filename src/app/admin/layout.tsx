@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, Package, Tags, ShoppingCart, BarChart3, Menu, X, LogOut, Lock,
-  Users, Box, Percent, Star, Search, Image, FileText, MessageSquare, Mail, BookOpen,
+  Users, Percent, Star, Search, Image, FileText, MessageSquare, Mail, BookOpen,
   Eye, EyeOff
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -16,18 +16,13 @@ const sidebarLinks = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: BookOpen },
-  { href: '/admin/brands', label: 'Brands', icon: Tags },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/customers', label: 'Customers', icon: Users },
-  { href: '/admin/inventory', label: 'Inventory', icon: Box },
   { href: '/admin/coupons', label: 'Coupons', icon: Percent },
   { href: '/admin/reviews', label: 'Reviews', icon: Star },
-  { href: '/admin/seo', label: 'SEO', icon: Search },
   { href: '/admin/media', label: 'Media', icon: Image },
   { href: '/admin/content', label: 'Content', icon: FileText },
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
   { href: '/admin/newsletter', label: 'Newsletter', icon: Mail },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
@@ -44,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         localStorage.removeItem(key)
       }
     }
-    const emptyKeys = ['admin-orders', 'admin-customers', 'admin-coupons', 'admin-brands', 'admin-inquiries', 'admin-newsletter', 'admin-media', 'admin-content', 'admin-seo', 'admin-categories']
+    const emptyKeys = ['admin-orders', 'admin-coupons', 'admin-brands', 'admin-inquiries', 'admin-newsletter', 'admin-media', 'admin-content', 'admin-seo', 'admin-categories', 'admin-customers', 'admin-inventory', 'admin-analytics']
     emptyKeys.forEach(k => { if (!localStorage.getItem(k)) localStorage.setItem(k, '[]') })
   }, [])
 
