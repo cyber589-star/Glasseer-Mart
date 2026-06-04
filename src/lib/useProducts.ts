@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { products as fallbackProducts } from '@/data/products'
+import { toCamel } from '@/lib/db'
 import type { Product } from '@/types'
 
 export function useProducts() {
@@ -18,7 +19,7 @@ export function useProducts() {
       try {
         const { data, error: err } = await supabase.from('products').select('*')
         if (err) throw err
-        setProducts((data || []) as unknown as Product[])
+        setProducts(toCamel<Product[]>((data || [])))
       } catch {
         setProducts(fallbackProducts as Product[])
       } finally {

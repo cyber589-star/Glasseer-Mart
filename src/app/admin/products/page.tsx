@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
 import { formatPrice, generateId } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
+import { toCamel, toSnake } from '@/lib/db'
 import type { Product, ProductVariant } from '@/types'
 
 interface FormState {
@@ -102,7 +103,7 @@ export default function AdminProducts() {
   useEffect(() => {
     if (!supabase) { setProducts([]); setLoading(false); return }
     ;(async () => {
-      try { const { data } = await supabase.from('products').select('*'); if (data) setProducts(data as unknown as Product[]) } catch {}
+      try { const { data } = await supabase.from('products').select('*'); if (data) setProducts(toCamel<Product[]>(data)) } catch {}
       setLoading(false)
     })()
   }, [])
@@ -128,14 +129,14 @@ export default function AdminProducts() {
     if (!editing) {
       const { id: _, ...rest } = formToProduct(form, null)
       if (supabase) {
-        const { data } = await supabase.from('products').insert(rest as any).select().single()
-        if (data) setProducts(prev => [data as unknown as Product, ...prev])
+        const { data } = await supabase.from('products').insert(toSnake(rest) as any).select().single()
+        if (data) setProducts(prev => [toCamel<Product>(data), ...prev])
       } else {
         setProducts(prev => [rest as Product, ...prev])
       }
     } else {
       const product = formToProduct(form, editing)
-      if (supabase) await supabase.from('products').update(product as any).eq('id', product.id)
+      if (supabase) await supabase.from('products').update(toSnake(product) as any).eq('id', product.id)
       setProducts(prev => prev.map(p => p.id === product.id ? product : p))
     }
     setShowModal(false)
