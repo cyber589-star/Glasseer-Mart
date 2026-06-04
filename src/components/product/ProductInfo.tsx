@@ -86,7 +86,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         ? Object.entries(variantGroups).map(([type, variants]) => (
             <div key={type}>
               <h3 className="font-sans text-label-caps text-primary mb-4 capitalize">
-                {type === 'frame_style' ? 'Frame Style' : type}:{' '}
+                {type === 'frame_style' ? 'Frame Style' : type === 'power' ? 'Glasses Power' : type}:{' '}
                 {selectedVariants[type] || variants[0]?.value}
               </h3>
               <div className="flex flex-wrap gap-3">

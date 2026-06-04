@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
   LayoutDashboard, Package, Tags, ShoppingCart, BarChart3, Menu, X, LogOut, Lock,
-  Users, Box, Percent, Star, Search, Image, FileText, MessageSquare, Mail, BookOpen
+  Users, Box, Percent, Star, Search, Image, FileText, MessageSquare, Mail, BookOpen,
+  Eye, EyeOff
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -64,6 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
 
   if (!authenticated) {
     return (
@@ -77,15 +79,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <p className="font-sans text-body-md text-on-surface-variant">Enter password to continue</p>
           </div>
           <div className="space-y-4">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => { setPassword(e.target.value); setError('') }}
-              onKeyDown={(e) => e.key === 'Enter' && login()}
-              placeholder="Password"
-              className="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary placeholder:text-on-surface-variant/50"
-              autoFocus
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => { setPassword(e.target.value); setError('') }}
+                onKeyDown={(e) => e.key === 'Enter' && login()}
+                placeholder="Password"
+                className="w-full px-4 py-3 pr-12 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary placeholder:text-on-surface-variant/50"
+                autoFocus
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
             {error && <p className="font-sans text-sm text-red-600">{error}</p>}
             <button onClick={login} className="w-full px-5 py-3 bg-secondary text-white rounded-xl font-sans text-label-caps hover:bg-primary transition-all">
               Sign In

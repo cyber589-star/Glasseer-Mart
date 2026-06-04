@@ -1,6 +1,6 @@
 export interface ProductVariant {
   id: string
-  type: 'size' | 'color' | 'frame_style'
+  type: 'size' | 'color' | 'frame_style' | 'power'
   label: string
   value: string
   hex?: string

@@ -474,10 +474,11 @@ export default function AdminProducts() {
                     <div key={v.id || i} className="p-4 bg-surface-container-low rounded-xl border border-outline-variant/50 space-y-3 relative">
                       <button onClick={() => removeVariant(i)} className="absolute top-3 right-3 p-1 text-on-surface-variant hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"><X size={14} /></button>
                       <div className="grid grid-cols-2 gap-3 pr-8">
-                        {renderSelect('Type', v.type, (val) => updateVariant(i, { ...v, type: val as 'size' | 'color' | 'frame_style' }), [
+                        {renderSelect('Type', v.type, (val) => updateVariant(i, { ...v, type: val as 'size' | 'color' | 'frame_style' | 'power' }), [
                           { value: 'size', label: 'Size' },
                           { value: 'color', label: 'Color' },
                           { value: 'frame_style', label: 'Frame Style' },
+                          { value: 'power', label: 'Power' },
                         ])}
                         {renderInput('Label', v.label, (val) => updateVariant(i, { ...v, label: val }))}
                       </div>
