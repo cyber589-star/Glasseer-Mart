@@ -4,10 +4,11 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { Container, SectionHeader } from '@/components/ui'
 import { ProductCard } from '@/components/product/ProductCard'
-import { products } from '@/data/products'
+import { useProducts } from '@/lib/useProducts'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export function AllProducts() {
+  const { products } = useProducts()
   const { ref, isVisible } = useScrollReveal()
 
   return (

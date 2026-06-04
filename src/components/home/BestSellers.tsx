@@ -2,10 +2,11 @@
 
 import { Container, SectionHeader } from '@/components/ui'
 import { ProductCard } from '@/components/product/ProductCard'
-import { products } from '@/data/products'
+import { useProducts } from '@/lib/useProducts'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
 export function BestSellers() {
+  const { products } = useProducts()
   const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 4)
   const { ref, isVisible } = useScrollReveal()
 

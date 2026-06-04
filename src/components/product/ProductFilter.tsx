@@ -1,9 +1,10 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { categories } from '@/data/products'
+import { useCategories } from '@/lib/useCategories'
 
 export function ProductFilter() {
+  const { categories } = useCategories()
   const router = useRouter()
   const searchParams = useSearchParams()
   const activeCategory = searchParams.get('category')

@@ -6,13 +6,15 @@ import { ProductGallery } from '@/components/product/ProductGallery'
 import { ProductInfo } from '@/components/product/ProductInfo'
 import { ProductReviews } from '@/components/product/ProductReviews'
 import { RelatedProducts } from '@/components/product/RelatedProducts'
-import { products } from '@/data/products'
+import { useProducts } from '@/lib/useProducts'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const slug = params.slug as string
+  const { products, loading } = useProducts()
   const product = products.find((p) => p.slug === slug)
 
+  if (loading) return <div className="py-24 text-center"><p className="font-sans text-body-md text-on-surface-variant">Loading...</p></div>
   if (!product) notFound()
 
   return (

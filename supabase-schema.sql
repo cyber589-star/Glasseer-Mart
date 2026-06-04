@@ -3,7 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Products
-CREATE TABLE products (
+CREATE TABLE IF NOT EXISTS products (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -43,13 +43,13 @@ CREATE TABLE products (
 CREATE INDEX idx_products_slug ON products(slug);
 CREATE INDEX idx_products_category ON products(category);
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public products" ON products FOR SELECT USING (true);
-CREATE POLICY "Admin products insert" ON products FOR INSERT WITH CHECK (true);
-CREATE POLICY "Admin products update" ON products FOR UPDATE USING (true);
-CREATE POLICY "Admin products delete" ON products FOR DELETE USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public products') THEN CREATE POLICY "Public products" ON products FOR SELECT USING (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin products insert') THEN CREATE POLICY "Admin products insert" ON products FOR INSERT WITH CHECK (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin products update') THEN CREATE POLICY "Admin products update" ON products FOR UPDATE USING (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin products delete') THEN CREATE POLICY "Admin products delete" ON products FOR DELETE USING (true); END IF; END $$;
 
 -- Categories
-CREATE TABLE categories (
+CREATE TABLE IF NOT EXISTS categories (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -58,11 +58,11 @@ CREATE TABLE categories (
   description TEXT DEFAULT ''
 );
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public categories" ON categories FOR SELECT USING (true);
-CREATE POLICY "Admin categories all" ON categories FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Public categories" ON categories FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Admin categories all" ON categories FOR ALL USING (true);
 
 -- Brands
-CREATE TABLE brands (
+CREATE TABLE IF NOT EXISTS brands (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   slug TEXT NOT NULL UNIQUE,
@@ -71,11 +71,11 @@ CREATE TABLE brands (
   product_count INT DEFAULT 0
 );
 ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public brands" ON brands FOR SELECT USING (true);
-CREATE POLICY "Admin brands all" ON brands FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Public brands" ON brands FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Admin brands all" ON brands FOR ALL USING (true);
 
 -- Orders
-CREATE TABLE orders (
+CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   customer_name TEXT NOT NULL,
   customer_email TEXT NOT NULL,
@@ -96,10 +96,10 @@ CREATE TABLE orders (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin orders all" ON orders FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin orders all" ON orders FOR ALL USING (true);
 
 -- Customers
-CREATE TABLE customers (
+CREATE TABLE IF NOT EXISTS customers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   email TEXT,
@@ -114,10 +114,10 @@ CREATE TABLE customers (
   joined_date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin customers all" ON customers FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin customers all" ON customers FOR ALL USING (true);
 
 -- Coupons
-CREATE TABLE coupons (
+CREATE TABLE IF NOT EXISTS coupons (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   code TEXT NOT NULL UNIQUE,
   type TEXT DEFAULT 'percentage',
@@ -129,10 +129,10 @@ CREATE TABLE coupons (
   status TEXT DEFAULT 'active'
 );
 ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin coupons all" ON coupons FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin coupons all" ON coupons FOR ALL USING (true);
 
 -- Inquiries
-CREATE TABLE inquiries (
+CREATE TABLE IF NOT EXISTS inquiries (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   name TEXT NOT NULL,
   email TEXT,
@@ -143,20 +143,20 @@ CREATE TABLE inquiries (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin inquiries all" ON inquiries FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin inquiries all" ON inquiries FOR ALL USING (true);
 
 -- Subscribers
-CREATE TABLE subscribers (
+CREATE TABLE IF NOT EXISTS subscribers (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   email TEXT NOT NULL UNIQUE,
   subscribed_at TIMESTAMPTZ DEFAULT NOW(),
   status TEXT DEFAULT 'active'
 );
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin subscribers all" ON subscribers FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin subscribers all" ON subscribers FOR ALL USING (true);
 
 -- Media
-CREATE TABLE media_items (
+CREATE TABLE IF NOT EXISTS media_items (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   url TEXT NOT NULL,
   name TEXT,
@@ -165,10 +165,10 @@ CREATE TABLE media_items (
   uploaded_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE media_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admin media all" ON media_items FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Admin media all" ON media_items FOR ALL USING (true);
 
 -- Home Content (single row)
-CREATE TABLE home_content (
+CREATE TABLE IF NOT EXISTS home_content (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   hero_title TEXT DEFAULT '',
   hero_subtitle TEXT DEFAULT '',
@@ -181,8 +181,8 @@ CREATE TABLE home_content (
   newsletter_text TEXT DEFAULT ''
 );
 ALTER TABLE home_content ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Public home_content" ON home_content FOR SELECT USING (true);
-CREATE POLICY "Admin home_content all" ON home_content FOR ALL USING (true);
+CREATE POLICY IF NOT EXISTS "Public home_content" ON home_content FOR SELECT USING (true);
+CREATE POLICY IF NOT EXISTS "Admin home_content all" ON home_content FOR ALL USING (true);
 
 -- Insert default home_content row
 INSERT INTO home_content (id, hero_title, hero_subtitle, hero_cta_text, hero_cta_link, about_title, about_text, newsletter_title, newsletter_text)
@@ -193,6 +193,6 @@ ON CONFLICT DO NOTHING;
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true)
 ON CONFLICT DO NOTHING;
 
-CREATE POLICY "Public images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
-CREATE POLICY "Admin images upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images');
-CREATE POLICY "Admin images delete" ON storage.objects FOR DELETE USING (bucket_id = 'product-images');
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public images') THEN CREATE POLICY "Public images" ON storage.objects FOR SELECT USING (bucket_id = 'product-images'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin images upload') THEN CREATE POLICY "Admin images upload" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images'); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin images delete') THEN CREATE POLICY "Admin images delete" ON storage.objects FOR DELETE USING (bucket_id = 'product-images'); END IF; END $$;

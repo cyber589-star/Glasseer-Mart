@@ -1,7 +1,7 @@
 'use client'
 
 import { ProductCard } from './ProductCard'
-import { products } from '@/data/products'
+import { useProducts } from '@/lib/useProducts'
 import type { Product } from '@/types'
 
 interface RelatedProductsProps {
@@ -9,6 +9,7 @@ interface RelatedProductsProps {
 }
 
 export function RelatedProducts({ currentProduct }: RelatedProductsProps) {
+  const { products } = useProducts()
   const related = products
     .filter((p) => p.category === currentProduct.category && p.id !== currentProduct.id)
     .slice(0, 4)

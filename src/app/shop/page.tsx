@@ -5,11 +5,13 @@ import { useSearchParams } from 'next/navigation'
 import { Container, SectionHeader } from '@/components/ui'
 import { ProductGrid } from '@/components/product/ProductGrid'
 import { ProductFilter } from '@/components/product/ProductFilter'
-import { products } from '@/data/products'
-import { categories } from '@/data/products'
+import { useProducts } from '@/lib/useProducts'
+import { useCategories } from '@/lib/useCategories'
 
 function ShopContent() {
   const searchParams = useSearchParams()
+  const { products, loading } = useProducts()
+  const { categories } = useCategories()
   const categorySlug = searchParams.get('category')
 
   const filtered = categorySlug
@@ -22,6 +24,8 @@ function ShopContent() {
   const categoryName = categorySlug
     ? categories.find((c) => c.slug === categorySlug)?.name || 'Shop'
     : 'All Products'
+
+  if (loading) return <Container><div className="text-center py-24"><p className="font-sans text-body-md text-on-surface-variant">Loading...</p></div></Container>
 
   return (
     <Container>
