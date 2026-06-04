@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Pencil, Trash2, X, ChevronDown } from 'lucide-react'
-import { products as initialProducts } from '@/data/products'
-import { useLocalStorage } from '@/lib/useLocalStorage'
+import { useState, useRef, useEffect } from 'react'
+import { Plus, Pencil, Trash2, X, ChevronDown, Upload } from 'lucide-react'
 import { formatPrice, generateId } from '@/lib/utils'
+import { supabase } from '@/lib/supabase'
 import type { Product, ProductVariant, SpecItem, ProductReview, SEO } from '@/types'
 
 const defaultSpecs: SpecItem[] = [
@@ -188,11 +187,17 @@ const tabLabels: Record<Tab, string> = {
 }
 
 export default function AdminProducts() {
-  const [products, setProducts] = useLocalStorage<Product[]>('admin-products', initialProducts)
+  const [products, setProducts] = useState<Product[]>([])
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [editing, setEditing] = useState<Product | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm())
   const [activeTab, setActiveTab] = useState<Tab>('basic')
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const galleryInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => { supabase.from('products').select('*').then(({ data }) => { if (data) setProducts(data as unknown as Product[]); setLoading(false) }) }, [])
 
   const openAdd = () => {
     setForm(emptyForm())
@@ -208,18 +213,54 @@ export default function AdminProducts() {
     setShowModal(true)
   }
 
-  const save = () => {
+  const uploadFile = async (file: File): Promise<string> => {
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
+    const { data } = await supabase.storage.from('product-images').upload(path, file)
+    const url = data ? supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl : ''
+    setUploading(false)
+    return url
+  }
+
+  const handleFeaturedUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const url = await uploadFile(file)
+    if (url) updateForm({ featuredImage: url })
+  }
+
+  const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    const urls: string[] = []
+    for (const f of files) {
+      const url = await uploadFile(f)
+      if (url) urls.push(url)
+    }
+    if (urls.length > 0) {
+      const existing = form.galleryImages ? form.galleryImages.split(',').map(s => s.trim()).filter(Boolean) : []
+      updateForm({ galleryImages: [...existing, ...urls].join(', ') })
+    }
+  }
+
+  const save = async () => {
     const product = formToProduct(form, editing)
     if (editing) {
-      setProducts(products.map(p => p.id === product.id ? product : p))
+      await supabase.from('products').update(product as any).eq('id', product.id)
+      setProducts(prev => prev.map(p => p.id === product.id ? product : p))
     } else {
-      setProducts([product, ...products])
+      await supabase.from('products').insert(product as any)
+      setProducts(prev => [product, ...prev])
     }
     setShowModal(false)
   }
 
-  const deleteProduct = (id: string) => {
-    if (confirm('Delete this product?')) setProducts(products.filter(p => p.id !== id))
+  const deleteProduct = async (id: string) => {
+    if (confirm('Delete this product?')) {
+      await supabase.from('products').delete().eq('id', id)
+      setProducts(prev => prev.filter(p => p.id !== id))
+    }
   }
 
   const updateForm = (partial: Partial<FormState>) => {
@@ -443,25 +484,44 @@ export default function AdminProducts() {
 
               {activeTab === 'images' && (
                 <>
-                  {renderInput('Featured Image URL', form.featuredImage, (v) => updateForm({ featuredImage: v }))}
-                  {form.featuredImage && (
-                    <div className="flex items-center gap-3 mt-2">
-                      <div className="w-20 h-20 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
-                        <img src={form.featuredImage} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                      </div>
-                      <span className="font-sans text-xs text-on-surface-variant">Featured Image Preview</span>
+                  <div className="space-y-3">
+                    <label className="block font-sans text-label-caps text-primary">Featured Image</label>
+                    <div className="flex items-center gap-3">
+                      <input type="file" accept="image/*" onChange={handleFeaturedUpload} className="hidden" ref={fileInputRef} />
+                      <button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-xl border border-outline-variant hover:bg-surface-bright transition-all font-sans text-sm text-primary">
+                        <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload from Device'}
+                      </button>
+                      {renderInput('Or URL', form.featuredImage, (v) => updateForm({ featuredImage: v }))}
                     </div>
-                  )}
-                  {renderInput('Gallery Images (comma-separated URLs)', form.galleryImages, (v) => updateForm({ galleryImages: v }), 'text', { placeholder: 'https://..., https://..., ...' })}
-                  {form.galleryImages && (
-                    <div className="flex flex-wrap gap-2 mt-2">
-                      {form.galleryImages.split(',').map((url, i) => url.trim() && (
-                        <div key={i} className="w-16 h-16 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
-                          <img src={url.trim()} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                    {form.featuredImage && (
+                      <div className="flex items-center gap-3 mt-2">
+                        <div className="w-24 h-24 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
+                          <img src={form.featuredImage} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
                         </div>
-                      ))}
+                        <span className="font-sans text-xs text-on-surface-variant">Featured Image</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-3 pt-4">
+                    <label className="block font-sans text-label-caps text-primary">Gallery Images</label>
+                    <div className="flex items-center gap-3">
+                      <input type="file" accept="image/*" multiple onChange={handleGalleryUpload} className="hidden" ref={galleryInputRef} />
+                      <button onClick={() => galleryInputRef.current?.click()} disabled={uploading} className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-xl border border-outline-variant hover:bg-surface-bright transition-all font-sans text-sm text-primary">
+                        <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload Multiple'}
+                      </button>
                     </div>
-                  )}
+                    {renderInput('Gallery Image URLs (comma-separated)', form.galleryImages, (v) => updateForm({ galleryImages: v }), 'text', { placeholder: 'https://..., https://..., ...' })}
+                    {form.galleryImages && (
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {form.galleryImages.split(',').map((url, i) => url.trim() && (
+                          <div key={i} className="w-16 h-16 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
+                            <img src={url.trim()} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </>
               )}
 
