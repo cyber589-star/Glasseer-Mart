@@ -88,10 +88,7 @@ function formToProduct(form: FormState, editing: Product | null): Product {
   }
 }
 
-const powerOptions = [
-  'No Power (0.00)', '+0.50', '+1.00', '+1.50', '+2.00', '+2.50', '+3.00', '+3.50', '+4.00',
-  '-0.50', '-1.00', '-1.50', '-2.00', '-2.50', '-3.00', '-3.50', '-4.00',
-]
+const powerOptions = ['Without Power', 'With Power']
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -128,13 +125,18 @@ export default function AdminProducts() {
   }
 
   const save = async () => {
-    const product = formToProduct(form, editing)
-    if (editing) {
+    if (!editing) {
+      const { id: _, ...rest } = formToProduct(form, null)
+      if (supabase) {
+        const { data } = await supabase.from('products').insert(rest as any).select().single()
+        if (data) setProducts(prev => [data as unknown as Product, ...prev])
+      } else {
+        setProducts(prev => [rest as Product, ...prev])
+      }
+    } else {
+      const product = formToProduct(form, editing)
       if (supabase) await supabase.from('products').update(product as any).eq('id', product.id)
       setProducts(prev => prev.map(p => p.id === product.id ? product : p))
-    } else {
-      if (supabase) await supabase.from('products').insert(product as any)
-      setProducts(prev => [product, ...prev])
     }
     setShowModal(false)
   }
@@ -152,7 +154,7 @@ export default function AdminProducts() {
     const v: ProductVariant = type === 'color'
       ? { id: generateId(), type: 'color', label: '', value: '', hex: '#000000', inStock: true }
       : type === 'power'
-        ? { id: generateId(), type: 'power', label: 'No Power (0.00)', value: '0.00', inStock: true }
+        ? { id: generateId(), type: 'power', label: 'Without Power', value: 'Without Power', inStock: true }
         : { id: generateId(), type: 'size', label: '', value: '', inStock: true }
     updateForm({ variants: [...form.variants, v] })
   }
