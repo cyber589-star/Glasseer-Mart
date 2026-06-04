@@ -197,7 +197,16 @@ export default function AdminProducts() {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const galleryInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => { supabase.from('products').select('*').then(({ data }) => { if (data) setProducts(data as unknown as Product[]); setLoading(false) }) }, [])
+  useEffect(() => {
+    if (!supabase) { setProducts([]); setLoading(false); return }
+    ;(async () => {
+      try {
+        const { data } = await supabase.from('products').select('*')
+        if (data) setProducts(data as unknown as Product[])
+      } catch {}
+      setLoading(false)
+    })()
+  }, [])
 
   const openAdd = () => {
     setForm(emptyForm())
@@ -214,6 +223,7 @@ export default function AdminProducts() {
   }
 
   const uploadFile = async (file: File): Promise<string> => {
+    if (!supabase) return ''
     setUploading(true)
     const ext = file.name.split('.').pop()
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
@@ -247,10 +257,10 @@ export default function AdminProducts() {
   const save = async () => {
     const product = formToProduct(form, editing)
     if (editing) {
-      await supabase.from('products').update(product as any).eq('id', product.id)
+      if (supabase) await supabase.from('products').update(product as any).eq('id', product.id)
       setProducts(prev => prev.map(p => p.id === product.id ? product : p))
     } else {
-      await supabase.from('products').insert(product as any)
+      if (supabase) await supabase.from('products').insert(product as any)
       setProducts(prev => [product, ...prev])
     }
     setShowModal(false)
@@ -258,7 +268,7 @@ export default function AdminProducts() {
 
   const deleteProduct = async (id: string) => {
     if (confirm('Delete this product?')) {
-      await supabase.from('products').delete().eq('id', id)
+      if (supabase) await supabase.from('products').delete().eq('id', id)
       setProducts(prev => prev.filter(p => p.id !== id))
     }
   }

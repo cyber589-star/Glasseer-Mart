@@ -8,6 +8,7 @@ export function useSupabaseData<T>(table: string, initialValue: T[]) {
   const [loading, setLoading] = useState(true)
 
   const fetchData = useCallback(async () => {
+    if (!supabase) { setLoading(false); return }
     const { data: result } = await supabase.from(table).select('*')
     setData((result || []) as unknown as T[])
     setLoading(false)
@@ -16,6 +17,7 @@ export function useSupabaseData<T>(table: string, initialValue: T[]) {
   useEffect(() => { fetchData() }, [fetchData])
 
   const save = async (record: T & { id?: string }) => {
+    if (!supabase) return
     if (record.id) {
       const { data: updated } = await supabase.from(table).update(record as any).eq('id', record.id).select().single()
       if (updated) setData(prev => prev.map((p: any) => p.id === record.id ? updated as unknown as T : p))
@@ -26,6 +28,7 @@ export function useSupabaseData<T>(table: string, initialValue: T[]) {
   }
 
   const remove = async (id: string) => {
+    if (!supabase) return
     await supabase.from(table).delete().eq('id', id)
     setData(prev => prev.filter((p: any) => p.id !== id))
   }
