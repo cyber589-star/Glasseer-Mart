@@ -82,11 +82,32 @@ export function ProductInfo({ product }: ProductInfoProps) {
         {product.shortDescription || product.description}
       </p>
 
+      {variantGroups?.['power'] && (
+        <div>
+          <h3 className="font-sans text-label-caps text-primary mb-4">Glasses Power: {selectedVariants['power'] || variantGroups['power'][0]?.value}</h3>
+          <div className="flex flex-wrap gap-3">
+            {variantGroups['power'].map((v) => (
+              <button
+                key={v.id}
+                onClick={() => handleVariantSelect('power', v.value)}
+                className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
+                  (selectedVariants['power'] || variantGroups['power'][0]?.value) === v.value
+                    ? 'bg-primary text-on-primary border-primary'
+                    : 'bg-transparent text-primary border-outline-variant hover:border-primary'
+                }`}
+              >
+                {v.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {variantGroups && Object.keys(variantGroups).length > 0
-        ? Object.entries(variantGroups).map(([type, variants]) => (
+        ? Object.entries(variantGroups).filter(([type]) => type !== 'power').map(([type, variants]) => (
             <div key={type}>
               <h3 className="font-sans text-label-caps text-primary mb-4 capitalize">
-                {type === 'frame_style' ? 'Frame Style' : type === 'power' ? 'Glasses Power' : type}:{' '}
+                {type === 'frame_style' ? 'Frame Style' : type}:{' '}
                 {selectedVariants[type] || variants[0]?.value}
               </h3>
               <div className="flex flex-wrap gap-3">
