@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS categories (
   description TEXT DEFAULT ''
 );
 ALTER TABLE categories ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Public categories" ON categories FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Admin categories all" ON categories FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public categories') THEN CREATE POLICY "Public categories" ON categories FOR SELECT USING (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin categories all') THEN CREATE POLICY "Admin categories all" ON categories FOR ALL USING (true); END IF; END $$;
 
 -- Brands
 CREATE TABLE IF NOT EXISTS brands (
@@ -71,8 +71,8 @@ CREATE TABLE IF NOT EXISTS brands (
   product_count INT DEFAULT 0
 );
 ALTER TABLE brands ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Public brands" ON brands FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Admin brands all" ON brands FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public brands') THEN CREATE POLICY "Public brands" ON brands FOR SELECT USING (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin brands all') THEN CREATE POLICY "Admin brands all" ON brands FOR ALL USING (true); END IF; END $$;
 
 -- Orders
 CREATE TABLE IF NOT EXISTS orders (
@@ -96,7 +96,7 @@ CREATE TABLE IF NOT EXISTS orders (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE orders ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin orders all" ON orders FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin orders all') THEN CREATE POLICY "Admin orders all" ON orders FOR ALL USING (true); END IF; END $$;
 
 -- Customers
 CREATE TABLE IF NOT EXISTS customers (
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS customers (
   joined_date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin customers all" ON customers FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin customers all') THEN CREATE POLICY "Admin customers all" ON customers FOR ALL USING (true); END IF; END $$;
 
 -- Coupons
 CREATE TABLE IF NOT EXISTS coupons (
@@ -129,7 +129,7 @@ CREATE TABLE IF NOT EXISTS coupons (
   status TEXT DEFAULT 'active'
 );
 ALTER TABLE coupons ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin coupons all" ON coupons FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin coupons all') THEN CREATE POLICY "Admin coupons all" ON coupons FOR ALL USING (true); END IF; END $$;
 
 -- Inquiries
 CREATE TABLE IF NOT EXISTS inquiries (
@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS inquiries (
   date TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE inquiries ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin inquiries all" ON inquiries FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin inquiries all') THEN CREATE POLICY "Admin inquiries all" ON inquiries FOR ALL USING (true); END IF; END $$;
 
 -- Subscribers
 CREATE TABLE IF NOT EXISTS subscribers (
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS subscribers (
   status TEXT DEFAULT 'active'
 );
 ALTER TABLE subscribers ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin subscribers all" ON subscribers FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin subscribers all') THEN CREATE POLICY "Admin subscribers all" ON subscribers FOR ALL USING (true); END IF; END $$;
 
 -- Media
 CREATE TABLE IF NOT EXISTS media_items (
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS media_items (
   uploaded_at TIMESTAMPTZ DEFAULT NOW()
 );
 ALTER TABLE media_items ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Admin media all" ON media_items FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin media all') THEN CREATE POLICY "Admin media all" ON media_items FOR ALL USING (true); END IF; END $$;
 
 -- Home Content (single row)
 CREATE TABLE IF NOT EXISTS home_content (
@@ -181,8 +181,8 @@ CREATE TABLE IF NOT EXISTS home_content (
   newsletter_text TEXT DEFAULT ''
 );
 ALTER TABLE home_content ENABLE ROW LEVEL SECURITY;
-CREATE POLICY IF NOT EXISTS "Public home_content" ON home_content FOR SELECT USING (true);
-CREATE POLICY IF NOT EXISTS "Admin home_content all" ON home_content FOR ALL USING (true);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public home_content') THEN CREATE POLICY "Public home_content" ON home_content FOR SELECT USING (true); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin home_content all') THEN CREATE POLICY "Admin home_content all" ON home_content FOR ALL USING (true); END IF; END $$;
 
 -- Insert default home_content row
 INSERT INTO home_content (id, hero_title, hero_subtitle, hero_cta_text, hero_cta_link, about_title, about_text, newsletter_title, newsletter_text)
