@@ -40,8 +40,8 @@ CREATE TABLE IF NOT EXISTS products (
   in_stock BOOLEAN DEFAULT true,
   original_price NUMERIC
 );
-CREATE INDEX idx_products_slug ON products(slug);
-CREATE INDEX idx_products_category ON products(category);
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname='idx_products_slug') THEN CREATE INDEX idx_products_slug ON products(slug); END IF; END $$;
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_class WHERE relname='idx_products_category') THEN CREATE INDEX idx_products_category ON products(category); END IF; END $$;
 ALTER TABLE products ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Public products') THEN CREATE POLICY "Public products" ON products FOR SELECT USING (true); END IF; END $$;
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin products insert') THEN CREATE POLICY "Admin products insert" ON products FOR INSERT WITH CHECK (true); END IF; END $$;
