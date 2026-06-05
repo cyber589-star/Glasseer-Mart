@@ -383,9 +383,11 @@ CREATE POLICY "Admin all notifications" ON notifications FOR ALL USING (true);
 INSERT INTO storage.buckets (id, name, public) VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO NOTHING;
 
--- Drop old policies first to avoid conflicts
+-- Drop ALL possible policy names (old + new) to make this idempotent
 DROP POLICY IF EXISTS "Public images" ON storage.objects;
+DROP POLICY IF EXISTS "Public images read" ON storage.objects;
 DROP POLICY IF EXISTS "Admin images upload" ON storage.objects;
+DROP POLICY IF EXISTS "Admin images update" ON storage.objects;
 DROP POLICY IF EXISTS "Admin images delete" ON storage.objects;
 
 CREATE POLICY "Public images read"   ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
