@@ -22,6 +22,7 @@ interface FormState {
   isBestSeller: boolean
   isNew: boolean
   inStock: boolean
+  requiresPrescription: boolean
 }
 
 const emptyForm = (): FormState => ({
@@ -39,6 +40,7 @@ const emptyForm = (): FormState => ({
   isBestSeller: false,
   isNew: false,
   inStock: true,
+  requiresPrescription: false,
 })
 
 export default function AdminProducts() {
@@ -105,6 +107,7 @@ export default function AdminProducts() {
     if (form.comparePrice) record.compare_price = Number(form.comparePrice)
     if (form.shippingFee) record.shipping_fee = form.shippingFee
     if (form.tax) record.tax = form.tax
+    record.requires_prescription = form.requiresPrescription
     record.is_active = true
 
     if (editing) {
@@ -143,6 +146,7 @@ export default function AdminProducts() {
       isBestSeller: p.isBestSeller || false,
       isNew: p.isNew || false,
       inStock: p.inStock ?? true,
+      requiresPrescription: p.requiresPrescription || false,
     })
     setShowModal(true)
   }
@@ -302,6 +306,13 @@ export default function AdminProducts() {
                     <span className="font-sans text-sm text-primary">In Stock</span>
                   </label>
                 </div>
+              </div>
+              <div>
+                <label className="block font-sans text-label-caps text-primary mb-2">Glasses Power Prescription</label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" checked={form.requiresPrescription} onChange={e => updateForm({ requiresPrescription: e.target.checked })} className="rounded border-outline-variant text-secondary focus:ring-secondary" />
+                  <span className="font-sans text-sm text-primary">Require prescription photo upload on product page</span>
+                </label>
               </div>
             </div>
 

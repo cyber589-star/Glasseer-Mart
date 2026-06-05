@@ -71,6 +71,7 @@ CREATE TABLE products (
   is_new          BOOLEAN DEFAULT false,
   in_stock        BOOLEAN DEFAULT true,
   is_active       BOOLEAN DEFAULT true,
+  requires_prescription BOOLEAN DEFAULT false,
   rating          NUMERIC DEFAULT 0,
   review_count    INT DEFAULT 0,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -203,6 +204,7 @@ CREATE TABLE order_items (
   price         NUMERIC NOT NULL,
   quantity      INT NOT NULL DEFAULT 1,
   variant       TEXT DEFAULT '',
+  prescription_image TEXT DEFAULT '',
   created_at    TIMESTAMPTZ DEFAULT NOW()
 );
 

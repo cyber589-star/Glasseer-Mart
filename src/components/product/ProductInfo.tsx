@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { ShoppingBag, Heart } from 'lucide-react'
+import { useState, useRef } from 'react'
+import { ShoppingBag, Heart, Upload } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { useWishlist } from '@/context/WishlistContext'
 import { formatPrice } from '@/lib/utils'
@@ -16,6 +16,8 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const [selectedSize, setSelectedSize] = useState('M')
   const [selectedPower, setSelectedPower] = useState('Without Power')
   const [quantity, setQuantity] = useState(1)
+  const [prescriptionImage, setPrescriptionImage] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem, isInWishlist } = useWishlist()
   const wishlisted = isInWishlist(product.id)
@@ -30,8 +32,16 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const sizes = ['S', 'M', 'L', 'XL']
   const powers = ['Without Power', 'With Power']
 
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setPrescriptionImage(reader.result as string)
+    reader.readAsDataURL(file)
+  }
+
   const handleAddToCart = () => {
-    addItem(product, quantity)
+    addItem(product, quantity, prescriptionImage)
   }
 
   return (
@@ -94,6 +104,23 @@ export function ProductInfo({ product }: ProductInfoProps) {
           ))}
         </div>
       </div>
+
+      {product.requiresPrescription && (
+        <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
+          <h3 className="font-sans text-label-caps text-amber-800 mb-3">Upload Prescription Photo</h3>
+          <p className="font-sans text-sm text-amber-700 mb-3">Please upload your glasses power prescription so we can prepare your lenses.</p>
+          <input type="file" accept="image/*" onChange={handleFile} className="hidden" ref={fileRef} />
+          <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
+            <Upload size={16} /> {prescriptionImage ? 'Change Photo' : 'Upload Photo'}
+          </button>
+          {prescriptionImage && (
+            <div className="mt-3 flex items-center gap-3">
+              <img src={prescriptionImage} alt="Prescription" className="w-20 h-20 object-contain rounded-lg border border-amber-200 bg-white" />
+              <span className="font-sans text-xs text-green-700">Photo uploaded ✓</span>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="flex items-center gap-4">
         <div className="flex items-center border border-outline-variant rounded-lg">
