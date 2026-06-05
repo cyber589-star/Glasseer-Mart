@@ -170,6 +170,7 @@ CREATE TABLE orders (
   address           TEXT DEFAULT '',
   postal_code       TEXT DEFAULT '',
   order_notes       TEXT DEFAULT '',
+  items             JSONB DEFAULT '[]',
   delivery_charges  NUMERIC DEFAULT 0,
   subtotal          NUMERIC DEFAULT 0,
   total             NUMERIC DEFAULT 0,

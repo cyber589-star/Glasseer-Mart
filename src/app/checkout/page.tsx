@@ -94,44 +94,39 @@ export default function CheckoutPage() {
       if (orderError) {
         console.error('Order insert failed:', orderError)
       } else if (insertedOrder) {
-        for (const item of orderItems) {
-          await supabase.from('order_items').insert({
-            order_id: insertedOrder.id,
-            product_id: item.productId,
-            product_name: item.productName,
-            product_image: item.productImage,
-            price: item.price,
-            quantity: item.quantity,
-            variant: item.variant || '',
-          })
-        }
+        try {
+          for (const item of orderItems) {
+            await supabase.from('order_items').insert({
+              order_id: insertedOrder.id,
+              product_id: item.productId,
+              product_name: item.productName,
+              product_image: item.productImage,
+              price: item.price,
+              quantity: item.quantity,
+              variant: item.variant || '',
+            })
+          }
+        } catch {} // order_items table may not exist yet
 
-        const { data: existing } = await supabase.from('customers').select('id, orders_count, total_spent').eq('email', email).maybeSingle()
-        if (existing) {
-          await supabase.from('customers').update({
-            name: fullName,
-            phone: mobileNumber,
-            alt_phone: altPhone,
-            orders_count: (existing.orders_count || 0) + 1,
-            total_spent: (existing.total_spent || 0) + total,
-          }).eq('id', existing.id)
-        } else {
-          await supabase.from('customers').insert({
-            name: fullName,
-            email,
-            phone: mobileNumber,
-            alt_phone: altPhone,
-            orders_count: 1,
-            total_spent: total,
-            status: 'active',
+        try {
+          const { data: existing } = await supabase.from('customers').select('id, orders_count, total_spent').eq('email', email).maybeSingle()
+          if (existing) {
+            await supabase.from('customers').update({
+              name: fullName, phone: mobileNumber, alt_phone: altPhone,
+              orders_count: (existing.orders_count || 0) + 1,
+              total_spent: (existing.total_spent || 0) + total,
+            }).eq('id', existing.id)
+          } else {
+            await supabase.from('customers').insert({
+              name: fullName, email, phone: mobileNumber, alt_phone: altPhone,
+              orders_count: 1, total_spent: total, status: 'active',
+            })
+          }
+          await supabase.from('notifications').insert({
+            type: 'order', title: `New Order ${trackingNumber}`,
+            message: `Order placed by ${fullName} — PKR ${total.toLocaleString()}`,
           })
-        }
-
-        await supabase.from('notifications').insert({
-          type: 'order',
-          title: `New Order ${trackingNumber}`,
-          message: `Order placed by ${fullName} — PKR ${total.toLocaleString()}`,
-        })
+        } catch {} // customers/notifications tables may not exist yet
       }
     }
 
