@@ -33,38 +33,26 @@ export interface Product {
   id: string
   name: string
   slug: string
-  sku?: string
-  brand?: string
   category: string
-  subcategory?: string
   description: string
-  shortDescription?: string
-  costPrice?: number
   price: number
-  salePrice?: number
-  discountPercentage?: number
-  stockQuantity?: number
-  lowStockAlert?: number
-  inventoryStatus?: 'in_stock' | 'low_stock' | 'out_of_stock'
-  featuredImage?: string
-  galleryImages?: string[]
+  originalPrice?: number
+  shippingFee?: number
+  tax?: number
+  images: string[]
   variants?: ProductVariant[]
-  specs: SpecItem[]
-  features: string[]
-  tags: string[]
-  status?: 'draft' | 'published'
   isFeatured?: boolean
   isBestSeller?: boolean
   isNew?: boolean
+  inStock: boolean
+  colors: { name: string; hex: string }[]
   rating: number
   reviewCount: number
+  features: string[]
+  specs: SpecItem[]
+  tags: string[]
   reviews?: ProductReview[]
-  seo?: SEO
   createdAt: string
-  images: string[]
-  colors: { name: string; hex: string }[]
-  inStock: boolean
-  originalPrice?: number
 }
 
 export interface Category {

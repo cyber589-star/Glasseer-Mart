@@ -21,7 +21,7 @@ export default function ProductDetailPage() {
     <div className="py-12 md:py-16">
       <Container>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 mb-24">
-          <ProductGallery images={product.images} name={product.name} galleryImages={product.galleryImages} />
+          <ProductGallery images={product.images} name={product.name} />
           <ProductInfo product={product} />
         </div>
         <div className="mb-24">

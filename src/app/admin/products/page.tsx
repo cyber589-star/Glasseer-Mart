@@ -5,7 +5,7 @@ import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
 import { formatPrice, generateId } from '@/lib/utils'
 import { supabase } from '@/lib/supabase'
 import { toCamel, toSnake } from '@/lib/db'
-import type { Product, ProductVariant } from '@/types'
+import type { Product } from '@/types'
 
 interface FormState {
   id: string
@@ -15,9 +15,10 @@ interface FormState {
   description: string
   price: number
   comparePrice: string
+  shippingFee: number
+  tax: number
   featuredImage: string
   galleryImages: string
-  variants: ProductVariant[]
   isFeatured: boolean
   isBestSeller: boolean
   isNew: boolean
@@ -32,9 +33,10 @@ const emptyForm = (): FormState => ({
   description: '',
   price: 0,
   comparePrice: '',
+  shippingFee: 0,
+  tax: 0,
   featuredImage: '',
   galleryImages: '',
-  variants: [],
   isFeatured: false,
   isBestSeller: false,
   isNew: false,
@@ -50,9 +52,10 @@ function productToForm(p: Product): FormState {
     description: p.description,
     price: p.price,
     comparePrice: p.originalPrice ? String(p.originalPrice) : '',
+    shippingFee: p.shippingFee || 0,
+    tax: p.tax || 0,
     featuredImage: p.images[0] || '',
     galleryImages: p.images.slice(1).join(', '),
-    variants: p.variants || [],
     isFeatured: p.isFeatured || false,
     isBestSeller: p.isBestSeller || false,
     isNew: p.isNew || false,
@@ -64,7 +67,6 @@ function formToProduct(form: FormState, editing: Product | null): Product {
   const images: string[] = []
   if (form.featuredImage) images.push(form.featuredImage)
   form.galleryImages.split(',').map(s => s.trim()).filter(Boolean).forEach(u => images.push(u))
-  const colors = form.variants.filter(v => v.type === 'color').map(v => ({ name: v.label, hex: v.hex || '#000000' }))
   return {
     id: form.id,
     name: form.name,
@@ -73,14 +75,15 @@ function formToProduct(form: FormState, editing: Product | null): Product {
     description: form.description,
     price: form.price,
     originalPrice: form.comparePrice ? Number(form.comparePrice) : undefined,
+    shippingFee: form.shippingFee || undefined,
+    tax: form.tax || undefined,
     images,
-    variants: form.variants.filter(v => v.type && v.label && v.value),
     isFeatured: form.isFeatured,
     isBestSeller: form.isBestSeller,
     isNew: form.isNew,
     createdAt: form.createdAt,
     inStock: true,
-    colors,
+    colors: editing?.colors || [],
     rating: editing?.rating ?? 0,
     reviewCount: editing?.reviewCount ?? 0,
     features: editing?.features || [],
@@ -88,8 +91,6 @@ function formToProduct(form: FormState, editing: Product | null): Product {
     tags: editing?.tags || [],
   }
 }
-
-const powerOptions = ['Without Power', 'With Power']
 
 export default function AdminProducts() {
   const [products, setProducts] = useState<Product[]>([])
@@ -150,21 +151,6 @@ export default function AdminProducts() {
   }
 
   const updateForm = (partial: Partial<FormState>) => setForm(prev => ({ ...prev, ...partial }))
-
-  const addVariant = (type: 'size' | 'color' | 'power') => {
-    const v: ProductVariant = type === 'color'
-      ? { id: generateId(), type: 'color', label: '', value: '', hex: '#000000', inStock: true }
-      : type === 'power'
-        ? { id: generateId(), type: 'power', label: 'Without Power', value: 'Without Power', inStock: true }
-        : { id: generateId(), type: 'size', label: '', value: '', inStock: true }
-    updateForm({ variants: [...form.variants, v] })
-  }
-
-  const updateVariant = (i: number, v: ProductVariant) => {
-    const variants = [...form.variants]; variants[i] = v; updateForm({ variants })
-  }
-
-  const removeVariant = (i: number) => updateForm({ variants: form.variants.filter((_, idx) => idx !== i) })
 
   const renderInput = (label: string, value: string | number, onChange: (v: any) => void, type = 'text') => (
     <div>
@@ -294,51 +280,9 @@ export default function AdminProducts() {
 
               {renderInput('More Images (comma-separated URLs)', form.galleryImages, (v) => updateForm({ galleryImages: v }))}
 
-              <div className="space-y-3">
-                <label className="block font-sans text-label-caps text-primary">Colors</label>
-                {form.variants.filter(v => v.type === 'color').map((v, i) => {
-                  const realIdx = form.variants.findIndex(x => x.id === v.id)
-                  return (
-                    <div key={v.id} className="flex items-center gap-2">
-                      <input value={v.label} onChange={e => updateVariant(realIdx, { ...v, label: e.target.value })} placeholder="Color name" className="flex-1 px-3 py-2 bg-surface-container-low rounded-lg border-0 focus:ring-2 focus:ring-secondary font-sans text-sm text-primary" />
-                      <input type="color" value={v.hex || '#000000'} onChange={e => updateVariant(realIdx, { ...v, hex: e.target.value })} className="w-10 h-10 rounded-lg border-0 cursor-pointer" />
-                      <button onClick={() => removeVariant(realIdx)} className="p-2 text-on-surface-variant hover:text-red-600"><X size={16} /></button>
-                    </div>
-                  )
-                })}
-                <button onClick={() => addVariant('color')} className="text-sm text-secondary hover:underline font-sans">+ Add Color</button>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block font-sans text-label-caps text-primary">Sizes</label>
-                {form.variants.filter(v => v.type === 'size').map((v, i) => {
-                  const realIdx = form.variants.findIndex(x => x.id === v.id)
-                  return (
-                    <div key={v.id} className="flex items-center gap-2">
-                      <input value={v.label} onChange={e => updateVariant(realIdx, { ...v, label: e.target.value })} placeholder="e.g. Small, Medium, Large" className="flex-1 px-3 py-2 bg-surface-container-low rounded-lg border-0 focus:ring-2 focus:ring-secondary font-sans text-sm text-primary" />
-                      <input value={v.value} onChange={e => updateVariant(realIdx, { ...v, value: e.target.value })} placeholder="e.g. S, M, L" className="w-24 px-3 py-2 bg-surface-container-low rounded-lg border-0 focus:ring-2 focus:ring-secondary font-sans text-sm text-primary" />
-                      <button onClick={() => removeVariant(realIdx)} className="p-2 text-on-surface-variant hover:text-red-600"><X size={16} /></button>
-                    </div>
-                  )
-                })}
-                <button onClick={() => addVariant('size')} className="text-sm text-secondary hover:underline font-sans">+ Add Size</button>
-              </div>
-
-              <div className="space-y-3">
-                <label className="block font-sans text-label-caps text-primary">Glasses Power Options</label>
-                <p className="font-sans text-xs text-on-surface-variant -mt-2">Customer can select any power when ordering. Add the powers you want to offer below:</p>
-                {form.variants.filter(v => v.type === 'power').map((v, i) => {
-                  const realIdx = form.variants.findIndex(x => x.id === v.id)
-                  return (
-                    <div key={v.id} className="flex items-center gap-2">
-                      <select value={v.label} onChange={e => updateVariant(realIdx, { ...v, label: e.target.value, value: e.target.value === 'No Power (0.00)' ? '0.00' : e.target.value.replace('+', '').replace('-', '') })} className="flex-1 px-3 py-2 bg-surface-container-low rounded-lg border-0 focus:ring-2 focus:ring-secondary font-sans text-sm text-primary">
-                        {powerOptions.map(o => <option key={o} value={o}>{o}</option>)}
-                      </select>
-                      <button onClick={() => removeVariant(realIdx)} className="p-2 text-on-surface-variant hover:text-red-600"><X size={16} /></button>
-                    </div>
-                  )
-                })}
-                <button onClick={() => addVariant('power')} className="text-sm text-secondary hover:underline font-sans">+ Add Power Option</button>
+              <div className="grid grid-cols-2 gap-4">
+                {renderInput('Shipping Fee (PKR)', form.shippingFee, (v) => updateForm({ shippingFee: v }), 'number')}
+                {renderInput('Tax %', form.tax, (v) => updateForm({ tax: v }), 'number')}
               </div>
 
               <div>

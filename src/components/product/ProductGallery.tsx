@@ -5,16 +5,15 @@ import { useState, useRef } from 'react'
 interface ProductGalleryProps {
   images: string[]
   name: string
-  galleryImages?: string[]
 }
 
-export function ProductGallery({ images, name, galleryImages }: ProductGalleryProps) {
+export function ProductGallery({ images, name }: ProductGalleryProps) {
   const [selected, setSelected] = useState(0)
   const [isZoomed, setIsZoomed] = useState(false)
   const [cursorPos, setCursorPos] = useState({ x: 50, y: 50 })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const allImages = galleryImages || images
+  const allImages = images
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return

@@ -5,6 +5,8 @@ import { Container } from '@/components/ui'
 import { useCart } from '@/context/CartContext'
 import { formatPrice, generateId } from '@/lib/utils'
 import { useLocalStorage } from '@/lib/useLocalStorage'
+import { supabase } from '@/lib/supabase'
+import { toSnake } from '@/lib/db'
 import Link from 'next/link'
 import { ShoppingBag, CheckCircle, Truck } from 'lucide-react'
 import type { Order, OrderItem } from '@/types'
@@ -80,6 +82,7 @@ export default function CheckoutPage() {
     }
 
     setOrders((prev) => [order, ...prev])
+    if (supabase) { void supabase.from('orders').insert(toSnake(order) as any) }
     clearCart()
     setTracking(trackingNumber)
     setTotalPaid(total)

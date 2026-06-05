@@ -13,39 +13,26 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const [selectedColor, setSelectedColor] = useState(
-    product.colors?.[0]?.name || product.variants?.find((v) => v.type === 'color')?.value || ''
-  )
-  const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({})
+  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.name || '')
+  const [selectedSize, setSelectedSize] = useState('M')
+  const [selectedPower, setSelectedPower] = useState('Without Power')
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem, isInWishlist } = useWishlist()
   const wishlisted = isInWishlist(product.id)
 
-  const effectivePrice = product.salePrice || product.price
-  const comparePrice = product.salePrice ? product.price : product.originalPrice
+  const effectivePrice = product.price
+  const comparePrice = product.originalPrice
 
-  const discountPercent =
-    product.discountPercentage && product.discountPercentage > 0
-      ? product.discountPercentage
-      : product.salePrice && product.salePrice < product.price
-        ? Math.round((1 - product.salePrice / product.price) * 100)
-        : product.originalPrice && product.price < product.originalPrice
-          ? Math.round((1 - product.price / product.originalPrice) * 100)
-          : 0
+  const discountPercent = product.originalPrice && product.originalPrice > product.price
+    ? Math.round((1 - product.price / product.originalPrice) * 100)
+    : 0
+
+  const sizes = ['S', 'M', 'L', 'XL']
+  const powers = ['Without Power', 'With Power']
 
   const handleAddToCart = () => {
     addItem(product, quantity, selectedColor)
-  }
-
-  const variantGroups = product.variants?.reduce<Record<string, typeof product.variants>>((acc, v) => {
-    if (!acc[v.type]) acc[v.type] = []
-    acc[v.type].push(v)
-    return acc
-  }, {})
-
-  const handleVariantSelect = (type: string, value: string) => {
-    setSelectedVariants((prev) => ({ ...prev, [type]: value }))
   }
 
   return (
@@ -53,9 +40,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <div>
         {product.isNew && (
           <span className="font-sans text-label-caps text-secondary mb-4 block">New Arrival</span>
-        )}
-        {product.brand && (
-          <p className="font-sans text-sm text-on-surface-variant mb-2">{product.brand}</p>
         )}
         <h1 className="font-serif text-headline-lg-mobile md:text-headline-lg text-primary mb-4">
           {product.name}
@@ -79,86 +63,55 @@ export function ProductInfo({ product }: ProductInfoProps) {
       </div>
 
       <p className="font-sans text-body-md text-on-surface-variant leading-relaxed">
-        {product.shortDescription || product.description}
+        {product.description}
       </p>
 
-      {variantGroups?.['power'] && (
-        <div>
-          <h3 className="font-sans text-label-caps text-primary mb-4">Glasses Power: {selectedVariants['power'] || variantGroups['power'][0]?.value}</h3>
-          <div className="flex flex-wrap gap-3">
-            {variantGroups['power'].map((v) => (
-              <button
-                key={v.id}
-                onClick={() => handleVariantSelect('power', v.value)}
-                className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
-                  (selectedVariants['power'] || variantGroups['power'][0]?.value) === v.value
-                    ? 'bg-primary text-on-primary border-primary'
-                    : 'bg-transparent text-primary border-outline-variant hover:border-primary'
-                }`}
-              >
-                {v.label}
-              </button>
-            ))}
-          </div>
+      <div>
+        <h3 className="font-sans text-label-caps text-primary mb-4">Color: {selectedColor}</h3>
+        <div className="flex flex-wrap gap-3">
+          {product.colors.map((color) => (
+            <button
+              key={color.hex}
+              onClick={() => setSelectedColor(color.name)}
+              className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+                selectedColor === color.name ? 'border-primary scale-110' : 'border-surface-container-high'
+              }`}
+              style={{ backgroundColor: color.hex }}
+              title={color.name}
+            />
+          ))}
         </div>
-      )}
+      </div>
 
-      {variantGroups && Object.keys(variantGroups).length > 0
-        ? Object.entries(variantGroups).filter(([type]) => type !== 'power').map(([type, variants]) => (
-            <div key={type}>
-              <h3 className="font-sans text-label-caps text-primary mb-4 capitalize">
-                {type === 'frame_style' ? 'Frame Style' : type}:{' '}
-                {selectedVariants[type] || variants[0]?.value}
-              </h3>
-              <div className="flex flex-wrap gap-3">
-                {variants.map((v) =>
-                  type === 'color' ? (
-                    <button
-                      key={v.id}
-                      onClick={() => handleVariantSelect(type, v.value)}
-                      className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-                        (selectedVariants[type] || variants[0]?.value) === v.value
-                          ? 'border-primary scale-110'
-                          : 'border-surface-container-high'
-                      }`}
-                      style={{ backgroundColor: v.hex || v.value }}
-                      title={v.label}
-                    />
-                  ) : (
-                    <button
-                      key={v.id}
-                      onClick={() => handleVariantSelect(type, v.value)}
-                      className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
-                        (selectedVariants[type] || variants[0]?.value) === v.value
-                          ? 'bg-primary text-on-primary border-primary'
-                          : 'bg-transparent text-primary border-outline-variant hover:border-primary'
-                      }`}
-                    >
-                      {v.label}
-                    </button>
-                  )
-                )}
-              </div>
-            </div>
-          ))
-        : product.colors.length > 0 && (
-            <div>
-              <h3 className="font-sans text-label-caps text-primary mb-4">Color: {selectedColor}</h3>
-              <div className="flex gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color.hex}
-                    onClick={() => setSelectedColor(color.name)}
-                    className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-                      selectedColor === color.name ? 'border-primary scale-110' : 'border-surface-container-high'
-                    }`}
-                    style={{ backgroundColor: color.hex }}
-                    title={color.name}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
+      <div>
+        <h3 className="font-sans text-label-caps text-primary mb-4">Size: {selectedSize}</h3>
+        <div className="flex flex-wrap gap-3">
+          {sizes.map((s) => (
+            <button
+              key={s}
+              onClick={() => setSelectedSize(s)}
+              className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
+                selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
+              }`}
+            >{s}</button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-sans text-label-caps text-primary mb-4">Glasses Power: {selectedPower}</h3>
+        <div className="flex flex-wrap gap-3">
+          {powers.map((p) => (
+            <button
+              key={p}
+              onClick={() => setSelectedPower(p)}
+              className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
+                selectedPower === p ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
+              }`}
+            >{p}</button>
+          ))}
+        </div>
+      </div>
 
       <div className="flex items-center gap-4">
         <div className="flex items-center border border-outline-variant rounded-lg">
