@@ -13,7 +13,6 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const [selectedSize, setSelectedSize] = useState('M')
   const [selectedPower, setSelectedPower] = useState('Without Power')
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
@@ -27,7 +26,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0
 
-  const sizes = ['S', 'M', 'L', 'XL']
   const powers = ['Without Power', 'With Power']
 
   const handleAddToCart = () => {
@@ -64,21 +62,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <p className="font-sans text-body-md text-on-surface-variant leading-relaxed">
         {product.description}
       </p>
-
-      <div>
-        <h3 className="font-sans text-label-caps text-primary mb-4">Size: {selectedSize}</h3>
-        <div className="flex flex-wrap gap-3">
-          {sizes.map((s) => (
-            <button
-              key={s}
-              onClick={() => setSelectedSize(s)}
-              className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
-                selectedSize === s ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
-              }`}
-            >{s}</button>
-          ))}
-        </div>
-      </div>
 
       <div>
         <h3 className="font-sans text-label-caps text-primary mb-4">Glasses Power: {selectedPower}</h3>
