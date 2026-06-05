@@ -318,33 +318,43 @@ export default function CheckoutPage() {
           <div>
             <h2 className="font-serif text-headline-sm text-primary mb-6">Order Summary</h2>
             <div className="bg-surface-bright rounded-2xl p-8 ambient-shadow space-y-4">
-              {items.map((item) => (
-                <div key={item.product.id} className="flex items-center gap-4 py-3 border-b border-outline-variant last:border-0">
-                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-3 flex-shrink-0">
-                    <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+              {items.map((item) => {
+                const itemShipping = (item.product.shippingFee || 0) * item.quantity
+                const itemTax = item.product.price * item.quantity * ((item.product.tax || 0) / 100)
+                return (
+                  <div key={item.product.id} className="py-4 border-b border-outline-variant last:border-0">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-3 flex-shrink-0">
+                        <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-sans text-body-md text-primary truncate">{item.product.name}</p>
+                        <p className="font-sans text-sm text-on-surface-variant">Qty: {item.quantity} × {formatPrice(item.product.price)}</p>
+                        {item.selectedVariant && <p className="font-sans text-xs text-on-surface-variant">Size: {item.selectedVariant}</p>}
+                      </div>
+                      <span className="font-sans text-label-caps text-primary">{formatPrice(item.product.price * item.quantity)}</span>
+                    </div>
+                    <div className="mt-2 ml-20 flex gap-4 font-sans text-xs text-on-surface-variant">
+                      {(item.product.shippingFee || 0) > 0 && <span>Shipping: {formatPrice(item.product.shippingFee || 0)}</span>}
+                      {(item.product.tax || 0) > 0 && <span>Tax ({(item.product.tax || 0)}%): {formatPrice(itemTax)}</span>}
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-sans text-body-md text-primary truncate">{item.product.name}</p>
-                    <p className="font-sans text-sm text-on-surface-variant">Qty: {item.quantity}</p>
-                    {item.selectedVariant && <p className="font-sans text-xs text-on-surface-variant">Size: {item.selectedVariant}</p>}
-                  </div>
-                  <span className="font-sans text-label-caps text-primary">{formatPrice(item.product.price * item.quantity)}</span>
-                </div>
-              ))}
+                )
+              })}
               <div className="pt-4 space-y-4 font-sans text-body-md">
                 <div className="flex items-center justify-between">
                   <span className="text-on-surface-variant">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                   <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-on-surface-variant">Shipping</span>
-                  <span className={deliveryCharges === 0 ? 'text-green-600 font-medium' : 'text-primary'}>
-                    {deliveryCharges === 0 ? 'Free' : formatPrice(deliveryCharges)}
-                  </span>
-                </div>
+                {deliveryCharges > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-on-surface-variant">Shipping</span>
+                    <span className="text-primary">{formatPrice(deliveryCharges)}</span>
+                  </div>
+                )}
                 {tax > 0 && (
                   <div className="flex items-center justify-between">
-                    <span className="text-on-surface-variant">Tax {taxRate > 0 ? `(${taxRate}%)` : ''}</span>
+                    <span className="text-on-surface-variant">Tax</span>
                     <span className="text-primary">{formatPrice(tax)}</span>
                   </div>
                 )}
