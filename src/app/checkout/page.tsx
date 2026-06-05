@@ -61,7 +61,6 @@ export default function CheckoutPage() {
       price: item.product.price,
       quantity: item.quantity,
       variant: item.selectedVariant || '',
-      prescriptionImage: item.prescriptionImage || '',
     }))
 
     const order: Order = {
@@ -106,7 +105,6 @@ export default function CheckoutPage() {
               price: item.price,
               quantity: item.quantity,
               variant: item.variant || '',
-              prescription_image: item.prescriptionImage || '',
             })
           }
         } catch {} // order_items table may not exist yet

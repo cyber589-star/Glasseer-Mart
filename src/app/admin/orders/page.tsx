@@ -135,20 +135,14 @@ export default function AdminOrders() {
                             </div>
                             <div>
                               <h4 className="font-sans text-label-caps text-primary mb-2">Order Items</h4>
-                              <div className="font-sans text-sm text-on-surface-variant space-y-2">
+                              <div className="font-sans text-sm text-on-surface-variant space-y-1">
                                 {(items[o.id] || []).length === 0 && (o.items || []).length > 0 && (
                                   (o.items as any[]).map((item: any, i: number) => (
-                                    <div key={i}>
-                                      <p>{item.productName} x{item.quantity} — {formatPrice(item.price * item.quantity)}</p>
-                                      {item.prescriptionImage && <img src={item.prescriptionImage} alt="Prescription" className="mt-1 w-24 h-24 object-contain rounded-lg border border-outline-variant bg-white" />}
-                                    </div>
+                                    <p key={i}>{item.productName} x{item.quantity} — {formatPrice(item.price * item.quantity)}</p>
                                   ))
                                 )}
                                 {(items[o.id] || []).map((item: any) => (
-                                  <div key={item.id}>
-                                    <p>{item.product_name} x{item.quantity} — {formatPrice(Number(item.price) * item.quantity)}</p>
-                                    {item.prescription_image && <img src={item.prescription_image} alt="Prescription" className="mt-1 w-24 h-24 object-contain rounded-lg border border-outline-variant bg-white" />}
-                                  </div>
+                                  <p key={item.id}>{item.product_name} x{item.quantity} — {formatPrice(Number(item.price) * item.quantity)}</p>
                                 ))}
                                 <hr className="my-1 border-outline-variant/50" />
                                 <p><span className="text-primary">Subtotal:</span> {formatPrice(o.subtotal)}</p>

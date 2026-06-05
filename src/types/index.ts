@@ -48,6 +48,7 @@ export interface Product {
   isNew?: boolean
   isActive?: boolean
   requiresPrescription?: boolean
+  powerImage?: string
   inStock: boolean
   colors: { name: string; hex: string }[]
   rating: number
@@ -111,7 +112,6 @@ export interface OrderItem {
   price: number
   quantity: number
   variant?: string
-  prescriptionImage?: string
 }
 
 export interface Order {
@@ -139,7 +139,6 @@ export interface CartItem {
   product: Product
   quantity: number
   selectedVariant?: string
-  prescriptionImage?: string
 }
 
 export interface Testimonial {
