@@ -331,34 +331,26 @@ export default function CheckoutPage() {
                   <span className="font-sans text-label-caps text-primary">{formatPrice(item.product.price * item.quantity)}</span>
                 </div>
               ))}
-              <div className="pt-4 space-y-3 font-sans text-body-md">
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
-                  <span className="text-primary">{formatPrice(subtotal)}</span>
+              <div className="pt-4 space-y-4 font-sans text-body-md">
+                <div className="flex items-center justify-between">
+                  <span className="text-on-surface-variant">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+                  <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Delivery Charges</span>
-                  <span className="text-primary">
-                {deliveryCharges === 0 ? (
-                  <span className="text-green-600">Free</span>
-                ) : (
-                  formatPrice(deliveryCharges)
-                )}
-              </span>
-            </div>
-                <div className="flex justify-between text-on-surface-variant">
-                  <span>Tax {taxRate > 0 ? `(${taxRate}%)` : ''}</span>
-                  <span className="text-primary">{formatPrice(tax)}</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-on-surface-variant">Shipping</span>
+                  <span className={deliveryCharges === 0 ? 'text-green-600 font-medium' : 'text-primary'}>
+                    {deliveryCharges === 0 ? 'Free' : formatPrice(deliveryCharges)}
+                  </span>
                 </div>
-                {deliveryCharges > 0 && (
-                  <div className="flex justify-between text-on-surface-variant text-xs border-t border-outline-variant/30 pt-2">
-                    <span>Shipping fee per item from product settings</span>
-                    <span></span>
+                {tax > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-on-surface-variant">Tax {taxRate > 0 ? `(${taxRate}%)` : ''}</span>
+                    <span className="text-primary">{formatPrice(tax)}</span>
                   </div>
                 )}
-                <div className="border-t border-outline-variant pt-4 flex justify-between">
-                  <span className="font-medium text-primary">Total</span>
-                  <span className="font-serif text-headline-sm text-primary">{formatPrice(total)}</span>
+                <div className="border-t border-outline-variant pt-4 flex items-center justify-between">
+                  <span className="text-primary font-semibold">Total</span>
+                  <span className="font-serif text-headline-sm text-primary font-bold">{formatPrice(total)}</span>
                 </div>
               </div>
             </div>
