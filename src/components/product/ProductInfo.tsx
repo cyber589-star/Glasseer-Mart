@@ -13,7 +13,6 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const [selectedPower, setSelectedPower] = useState('Without Power')
   const [quantity, setQuantity] = useState(1)
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem, isInWishlist } = useWishlist()
@@ -25,8 +24,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const discountPercent = product.originalPrice && product.originalPrice > product.price
     ? Math.round((1 - product.price / product.originalPrice) * 100)
     : 0
-
-  const powers = ['Without Power', 'With Power']
 
   const handleAddToCart = () => {
     addItem(product, quantity)
@@ -62,28 +59,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <p className="font-sans text-body-md text-on-surface-variant leading-relaxed">
         {product.description}
       </p>
-
-      <div>
-        <h3 className="font-sans text-label-caps text-primary mb-4">Glasses Power: {selectedPower}</h3>
-        <div className="flex flex-wrap gap-3">
-          {powers.map((p) => (
-            <button
-              key={p}
-              onClick={() => setSelectedPower(p)}
-              className={`px-5 py-2.5 rounded-full border font-sans text-sm transition-all duration-300 ${
-                selectedPower === p ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
-              }`}
-            >{p}</button>
-          ))}
-        </div>
-      </div>
-
-      {product.powerImage && selectedPower === 'With Power' && (
-        <div className="bg-blue-50 rounded-xl p-5 border border-blue-200">
-          <h3 className="font-sans text-label-caps text-blue-800 mb-3">With Power Glasses</h3>
-          <img src={product.powerImage} alt="With Power variant" className="w-full max-w-xs rounded-lg" />
-        </div>
-      )}
 
       <div className="flex items-center gap-4">
         <div className="flex items-center border border-outline-variant rounded-lg">

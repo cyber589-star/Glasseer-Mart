@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Container } from '@/components/ui'
 import { useCart } from '@/context/CartContext'
 import { formatPrice, generateUUID } from '@/lib/utils'
@@ -8,7 +8,7 @@ import { useLocalStorage } from '@/lib/useLocalStorage'
 import { supabase } from '@/lib/supabase'
 import { toSnake } from '@/lib/db'
 import Link from 'next/link'
-import { ShoppingBag, CheckCircle, Truck } from 'lucide-react'
+import { ShoppingBag, CheckCircle, Truck, Upload, Camera } from 'lucide-react'
 import type { Order, OrderItem } from '@/types'
 
 const emptyOrders: Order[] = []
@@ -31,6 +31,10 @@ export default function CheckoutPage() {
   const [orderNotes, setOrderNotes] = useState('')
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [placing, setPlacing] = useState(false)
+  const [needsPower, setNeedsPower] = useState(false)
+  const [prescriptionImage, setPrescriptionImage] = useState('')
+  const fileRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
 
   const deliveryCharges = items.reduce((sum, item) => sum + (item.product.shippingFee || 0) * item.quantity, 0)
   const tax = items.reduce((sum, item) => sum + item.product.price * item.quantity * ((item.product.tax || 0) / 100), 0)
@@ -47,6 +51,14 @@ export default function CheckoutPage() {
     if (!address.trim()) errs.address = true
     setErrors(errs)
     return Object.keys(errs).length === 0
+  }
+
+  const handlePowerFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setPrescriptionImage(reader.result as string)
+    reader.readAsDataURL(file)
   }
 
   const handlePlaceOrder = async () => {
@@ -82,6 +94,8 @@ export default function CheckoutPage() {
       paymentMethod: 'cod',
       trackingNumber,
       date: new Date().toISOString(),
+      needsPower,
+      prescriptionImage: needsPower ? prescriptionImage : '',
     }
 
     setOrders((prev) => [order, ...prev])
@@ -294,6 +308,47 @@ export default function CheckoutPage() {
                 className="w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary resize-none"
                 placeholder="Any special instructions or notes for your order..."
               />
+            </div>
+
+            <div>
+              <h2 className="font-serif text-headline-sm text-primary mb-6">Glasses Power</h2>
+              <p className="font-sans text-sm text-on-surface-variant mb-4">Do you need glasses power (prescription) for any of these items?</p>
+              <div className="flex gap-4 mb-4">
+                <button
+                  onClick={() => { setNeedsPower(false); setPrescriptionImage('') }}
+                  className={`px-6 py-2.5 rounded-full border font-sans text-sm transition-all ${
+                    !needsPower ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant'
+                  }`}
+                >No</button>
+                <button
+                  onClick={() => setNeedsPower(true)}
+                  className={`px-6 py-2.5 rounded-full border font-sans text-sm transition-all ${
+                    needsPower ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant'
+                  }`}
+                >Yes</button>
+              </div>
+              {needsPower && (
+                <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
+                  <h3 className="font-sans text-label-caps text-amber-800 mb-3">Upload Prescription</h3>
+                  <p className="font-sans text-sm text-amber-700 mb-3">Please upload your glasses power prescription so we can prepare your lenses.</p>
+                  <input type="file" accept="image/*" onChange={handlePowerFile} className="hidden" ref={fileRef} />
+                  <input type="file" accept="image/*" capture="environment" onChange={handlePowerFile} className="hidden" ref={cameraRef} />
+                  <div className="flex flex-wrap gap-3">
+                    <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
+                      <Upload size={16} /> {prescriptionImage ? 'Change Photo' : 'Upload Photo'}
+                    </button>
+                    <button onClick={() => cameraRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
+                      <Camera size={16} /> Take Photo
+                    </button>
+                  </div>
+                  {prescriptionImage && (
+                    <div className="mt-3 flex items-center gap-3">
+                      <img src={prescriptionImage} alt="Prescription" className="w-20 h-20 object-contain rounded-lg border border-amber-200 bg-white" />
+                      <span className="font-sans text-xs text-green-700">Photo uploaded ✓</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="bg-secondary/5 rounded-2xl p-6 border-2 border-secondary">

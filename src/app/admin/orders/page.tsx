@@ -151,6 +151,16 @@ export default function AdminOrders() {
                               </div>
                             </div>
                           </div>
+                          {o.needsPower && (
+                            <div className="mt-4 pt-4 border-t border-outline-variant/30">
+                              <h4 className="font-sans text-label-caps text-primary mb-2">Glasses Power Prescription</h4>
+                              {o.prescriptionImage ? (
+                                <img src={o.prescriptionImage} alt="Prescription" className="w-32 h-32 object-contain rounded-lg border border-outline-variant bg-white" />
+                              ) : (
+                                <p className="font-sans text-sm text-on-surface-variant">Needs power but no image uploaded</p>
+                              )}
+                            </div>
+                          )}
                         </td>
                       </tr>
                     )}

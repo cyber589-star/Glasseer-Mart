@@ -71,8 +71,6 @@ CREATE TABLE products (
   is_new          BOOLEAN DEFAULT false,
   in_stock        BOOLEAN DEFAULT true,
   is_active       BOOLEAN DEFAULT true,
-  requires_prescription BOOLEAN DEFAULT false,
-  power_image     TEXT DEFAULT '',
   rating          NUMERIC DEFAULT 0,
   review_count    INT DEFAULT 0,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -180,6 +178,8 @@ CREATE TABLE orders (
   payment_method    TEXT DEFAULT 'cod' CHECK (payment_method IN ('cod','card')),
   tracking_number   TEXT DEFAULT '',
   date              TIMESTAMPTZ DEFAULT NOW(),
+  needs_power       BOOLEAN DEFAULT false,
+  prescription_image TEXT DEFAULT '',
   created_at        TIMESTAMPTZ DEFAULT NOW(),
   updated_at        TIMESTAMPTZ DEFAULT NOW()
 );

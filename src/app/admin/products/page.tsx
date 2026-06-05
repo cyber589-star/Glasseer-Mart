@@ -18,12 +18,10 @@ interface FormState {
   tax: number
   featuredImage: string
   galleryImages: string
-  powerImage: string
   isFeatured: boolean
   isBestSeller: boolean
   isNew: boolean
   inStock: boolean
-  requiresPrescription: boolean
 }
 
 const emptyForm = (): FormState => ({
@@ -37,12 +35,10 @@ const emptyForm = (): FormState => ({
   tax: 0,
   featuredImage: '',
   galleryImages: '',
-  powerImage: '',
   isFeatured: false,
   isBestSeller: false,
   isNew: false,
   inStock: true,
-  requiresPrescription: false,
 })
 
 export default function AdminProducts() {
@@ -55,7 +51,6 @@ export default function AdminProducts() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
-  const powerFileRef = useRef<HTMLInputElement>(null)
 
   const load = async () => {
     if (!supabase) { setProducts([]); setLoading(false); return }
@@ -81,12 +76,6 @@ export default function AdminProducts() {
     const file = e.target.files?.[0]; if (!file) return
     const url = await uploadFile(file)
     if (url) updateForm({ featuredImage: url })
-  }
-
-  const handlePowerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]; if (!file) return
-    const url = await uploadFile(file)
-    if (url) updateForm({ powerImage: url })
   }
 
   const save = async () => {
@@ -116,8 +105,6 @@ export default function AdminProducts() {
     if (form.comparePrice) record.compare_price = Number(form.comparePrice)
     if (form.shippingFee) record.shipping_fee = form.shippingFee
     if (form.tax) record.tax = form.tax
-    record.requires_prescription = form.requiresPrescription
-    if (form.powerImage) record.power_image = form.powerImage
     record.is_active = true
 
     if (editing) {
@@ -156,8 +143,6 @@ export default function AdminProducts() {
       isBestSeller: p.isBestSeller || false,
       isNew: p.isNew || false,
       inStock: p.inStock ?? true,
-      requiresPrescription: p.requiresPrescription || false,
-      powerImage: p.powerImage || '',
     })
     setShowModal(true)
   }
@@ -292,23 +277,6 @@ export default function AdminProducts() {
 
               {renderInput('More Images (comma-separated URLs)', form.galleryImages, (v) => updateForm({ galleryImages: v }))}
 
-              <div>
-                <label className="block font-sans text-label-caps text-primary mb-1.5">With Power Image</label>
-                <p className="font-sans text-xs text-on-surface-variant mb-2">This image shows when customer selects "With Power" on the product page.</p>
-                <div className="flex items-center gap-3">
-                  <input type="file" accept="image/*" onChange={handlePowerUpload} className="hidden" ref={powerFileRef} />
-                  <button onClick={() => powerFileRef.current?.click()} disabled={uploading} className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-xl border border-outline-variant hover:bg-surface-bright transition-all font-sans text-sm text-primary">
-                    <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload Power Image'}
-                  </button>
-                  {renderInput('Or image URL', form.powerImage, (v) => updateForm({ powerImage: v }))}
-                </div>
-                {form.powerImage && (
-                  <div className="mt-2 w-24 h-24 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
-                    <img src={form.powerImage} alt="" className="w-full h-full object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                  </div>
-                )}
-              </div>
-
               <div className="grid grid-cols-2 gap-4">
                 {renderInput('Shipping Fee (PKR)', form.shippingFee, (v) => updateForm({ shippingFee: v }), 'number')}
                 {renderInput('Tax %', form.tax, (v) => updateForm({ tax: v }), 'number')}
@@ -334,13 +302,6 @@ export default function AdminProducts() {
                     <span className="font-sans text-sm text-primary">In Stock</span>
                   </label>
                 </div>
-              </div>
-              <div>
-                <label className="block font-sans text-label-caps text-primary mb-2">Glasses Power Prescription</label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.requiresPrescription} onChange={e => updateForm({ requiresPrescription: e.target.checked })} className="rounded border-outline-variant text-secondary focus:ring-secondary" />
-                  <span className="font-sans text-sm text-primary">Require prescription photo upload on product page</span>
-                </label>
               </div>
             </div>
 

@@ -47,8 +47,6 @@ export interface Product {
   isBestSeller?: boolean
   isNew?: boolean
   isActive?: boolean
-  requiresPrescription?: boolean
-  powerImage?: string
   inStock: boolean
   colors: { name: string; hex: string }[]
   rating: number
@@ -133,6 +131,8 @@ export interface Order {
   paymentMethod: 'cod' | 'card'
   trackingNumber: string
   date: string
+  needsPower?: boolean
+  prescriptionImage?: string
 }
 
 export interface CartItem {
