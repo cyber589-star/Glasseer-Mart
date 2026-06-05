@@ -17,10 +17,20 @@ export function useProducts() {
     }
     ;(async () => {
       try {
-        const { data, error: err } = await supabase.from('products').select('*')
+        const { data, error: err } = await supabase
+          .from('products')
+          .select('*, product_images(url, alt, sort_order)')
+          .order('created_at', { ascending: false })
         if (err) throw err
-        setProducts(toCamel<Product[]>((data || [])))
-      } catch {
+        if (data) {
+          const mapped = toCamel<Product[]>(data).map(p => ({
+            ...p,
+            images: Array.isArray(p.images) ? p.images : [],
+          }))
+          setProducts(mapped)
+        }
+      } catch (e) {
+        console.error('Failed to fetch products:', e)
         setProducts(fallbackProducts as Product[])
       } finally {
         setLoading(false)

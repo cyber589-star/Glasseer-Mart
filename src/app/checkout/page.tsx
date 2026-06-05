@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Container } from '@/components/ui'
 import { useCart } from '@/context/CartContext'
-import { formatPrice, generateId } from '@/lib/utils'
+import { formatPrice, generateUUID } from '@/lib/utils'
 import { useLocalStorage } from '@/lib/useLocalStorage'
 import { supabase } from '@/lib/supabase'
 import { toSnake } from '@/lib/db'
@@ -30,6 +30,7 @@ export default function CheckoutPage() {
   const [postalCode, setPostalCode] = useState('')
   const [orderNotes, setOrderNotes] = useState('')
   const [errors, setErrors] = useState<Record<string, boolean>>({})
+  const [placing, setPlacing] = useState(false)
 
   const deliveryCharges = subtotal > 200 ? 0 : 15
   const tax = subtotal * 0.08
@@ -47,21 +48,22 @@ export default function CheckoutPage() {
     return Object.keys(errs).length === 0
   }
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
     if (!validate()) return
+    setPlacing(true)
 
-    const trackingNumber = `GL-${generateId().toUpperCase()}`
+    const trackingNumber = `GL-${generateUUID().slice(0, 8).toUpperCase()}`
     const orderItems: OrderItem[] = items.map((item) => ({
       productId: item.product.id,
       productName: item.product.name,
       productImage: item.product.images[0] || '',
       price: item.product.price,
       quantity: item.quantity,
-      variant: item.selectedColor || item.selectedVariant,
+      variant: item.selectedColor || item.selectedVariant || '',
     }))
 
     const order: Order = {
-      id: generateId(),
+      id: generateUUID(),
       customerName: fullName,
       customerEmail: email,
       customerMobile: mobileNumber,
@@ -78,18 +80,66 @@ export default function CheckoutPage() {
       status: 'pending',
       paymentMethod: 'cod',
       trackingNumber,
-      date: new Date().toISOString().split('T')[0],
+      date: new Date().toISOString(),
     }
 
     setOrders((prev) => [order, ...prev])
+
     if (supabase) {
-      void supabase.from('orders').insert(toSnake(order) as any)
-      void supabase.from('customers').insert(toSnake({ email, name: fullName, mobile: mobileNumber, orders: 1}) as any)
+      const { id: _, ...orderData } = toSnake(order) as any
+      orderData.tracking_number = trackingNumber
+
+      const { data: insertedOrder, error: orderError } = await supabase.from('orders').insert(orderData).select().single()
+
+      if (orderError) {
+        console.error('Order insert failed:', orderError)
+      } else if (insertedOrder) {
+        for (const item of orderItems) {
+          await supabase.from('order_items').insert({
+            order_id: insertedOrder.id,
+            product_id: item.productId,
+            product_name: item.productName,
+            product_image: item.productImage,
+            price: item.price,
+            quantity: item.quantity,
+            variant: item.variant || '',
+          })
+        }
+
+        const { data: existing } = await supabase.from('customers').select('id, orders_count, total_spent').eq('email', email).maybeSingle()
+        if (existing) {
+          await supabase.from('customers').update({
+            name: fullName,
+            phone: mobileNumber,
+            alt_phone: altPhone,
+            orders_count: (existing.orders_count || 0) + 1,
+            total_spent: (existing.total_spent || 0) + total,
+          }).eq('id', existing.id)
+        } else {
+          await supabase.from('customers').insert({
+            name: fullName,
+            email,
+            phone: mobileNumber,
+            alt_phone: altPhone,
+            orders_count: 1,
+            total_spent: total,
+            status: 'active',
+          })
+        }
+
+        await supabase.from('notifications').insert({
+          type: 'order',
+          title: `New Order ${trackingNumber}`,
+          message: `Order placed by ${fullName} — PKR ${total.toLocaleString()}`,
+        })
+      }
     }
+
     clearCart()
     setTracking(trackingNumber)
     setTotalPaid(total)
     setPlaced(true)
+    setPlacing(false)
   }
 
   if (items.length === 0 && !placed) {
@@ -262,9 +312,10 @@ export default function CheckoutPage() {
 
             <button
               onClick={handlePlaceOrder}
-              className="w-full px-8 py-4 bg-primary text-on-primary rounded-lg font-sans text-label-caps transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.15)] hover:bg-secondary"
+              disabled={placing}
+              className="w-full px-8 py-4 bg-primary text-on-primary rounded-lg font-sans text-label-caps transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(0,0,0,0.15)] hover:bg-secondary disabled:opacity-50 disabled:hover:translate-y-0"
             >
-              Place Order - Pay {formatPrice(total)} on Delivery
+              {placing ? 'Placing Order...' : `Place Order - Pay ${formatPrice(total)} on Delivery`}
             </button>
           </div>
 

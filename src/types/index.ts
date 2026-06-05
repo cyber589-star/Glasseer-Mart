@@ -34,8 +34,10 @@ export interface Product {
   name: string
   slug: string
   category: string
+  categoryId?: string
   description: string
   price: number
+  comparePrice?: number
   originalPrice?: number
   shippingFee?: number
   tax?: number
@@ -44,6 +46,7 @@ export interface Product {
   isFeatured?: boolean
   isBestSeller?: boolean
   isNew?: boolean
+  isActive?: boolean
   inStock: boolean
   colors: { name: string; hex: string }[]
   rating: number
