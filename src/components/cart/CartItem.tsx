@@ -20,9 +20,6 @@ export function CartItem({ item }: { item: CartItemType }) {
             <Link href={`/shop/${item.product.slug}`} className="font-serif text-headline-sm text-primary hover:text-secondary transition-colors">
               {item.product.name}
             </Link>
-            {item.selectedColor && (
-              <p className="font-sans text-sm text-on-surface-variant">{item.selectedColor}</p>
-            )}
           </div>
           <button onClick={() => removeItem(item.product.id)} className="text-on-surface-variant hover:text-primary transition-colors p-1">
             <X size={16} />

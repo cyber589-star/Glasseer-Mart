@@ -32,8 +32,8 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [placing, setPlacing] = useState(false)
 
-  const deliveryCharges = subtotal > 200 ? 0 : 15
-  const tax = subtotal * 0.08
+  const deliveryCharges = items.reduce((sum, item) => sum + (item.product.shippingFee || 0) * item.quantity, 0)
+  const tax = items.reduce((sum, item) => sum + item.product.price * item.quantity * ((item.product.tax || 0) / 100), 0)
   const total = subtotal + deliveryCharges + tax
 
   const validate = () => {
@@ -59,7 +59,7 @@ export default function CheckoutPage() {
       productImage: item.product.images[0] || '',
       price: item.product.price,
       quantity: item.quantity,
-      variant: item.selectedColor || item.selectedVariant || '',
+      variant: item.selectedVariant || '',
     }))
 
     const order: Order = {
@@ -325,7 +325,6 @@ export default function CheckoutPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-sans text-body-md text-primary truncate">{item.product.name}</p>
                     <p className="font-sans text-sm text-on-surface-variant">Qty: {item.quantity}</p>
-                    {item.selectedColor && <p className="font-sans text-xs text-on-surface-variant">Color: {item.selectedColor}</p>}
                     {item.selectedVariant && <p className="font-sans text-xs text-on-surface-variant">Size: {item.selectedVariant}</p>}
                   </div>
                   <span className="font-sans text-label-caps text-primary">{formatPrice(item.product.price * item.quantity)}</span>
@@ -339,16 +338,13 @@ export default function CheckoutPage() {
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Delivery Charges</span>
                   <span className="text-primary">
-                    {deliveryCharges === 0 ? (
-                      <span className="text-green-600">Free</span>
-                    ) : (
-                      formatPrice(deliveryCharges)
-                    )}
-                  </span>
-                </div>
-                {subtotal <= 200 && (
-                  <p className="font-sans text-xs text-on-surface-variant">Free delivery on orders over {formatPrice(200)}</p>
+                {deliveryCharges === 0 ? (
+                  <span className="text-green-600">Free</span>
+                ) : (
+                  formatPrice(deliveryCharges)
                 )}
+              </span>
+            </div>
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Tax (8%)</span>
                   <span className="text-primary">{formatPrice(tax)}</span>

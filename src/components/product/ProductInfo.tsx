@@ -13,7 +13,6 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
-  const [selectedColor, setSelectedColor] = useState(product.colors?.[0]?.name || '')
   const [selectedSize, setSelectedSize] = useState('M')
   const [selectedPower, setSelectedPower] = useState('Without Power')
   const [quantity, setQuantity] = useState(1)
@@ -32,7 +31,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const powers = ['Without Power', 'With Power']
 
   const handleAddToCart = () => {
-    addItem(product, quantity, selectedColor)
+    addItem(product, quantity)
   }
 
   return (
@@ -65,23 +64,6 @@ export function ProductInfo({ product }: ProductInfoProps) {
       <p className="font-sans text-body-md text-on-surface-variant leading-relaxed">
         {product.description}
       </p>
-
-      <div>
-        <h3 className="font-sans text-label-caps text-primary mb-4">Color: {selectedColor}</h3>
-        <div className="flex flex-wrap gap-3">
-          {product.colors.map((color) => (
-            <button
-              key={color.hex}
-              onClick={() => setSelectedColor(color.name)}
-              className={`w-10 h-10 rounded-full border-2 transition-all duration-300 ${
-                selectedColor === color.name ? 'border-primary scale-110' : 'border-surface-container-high'
-              }`}
-              style={{ backgroundColor: color.hex }}
-              title={color.name}
-            />
-          ))}
-        </div>
-      </div>
 
       <div>
         <h3 className="font-sans text-label-caps text-primary mb-4">Size: {selectedSize}</h3>

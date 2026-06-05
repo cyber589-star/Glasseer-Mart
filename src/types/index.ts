@@ -137,7 +137,6 @@ export interface CartItem {
   product: Product
   quantity: number
   selectedVariant?: string
-  selectedColor?: string
 }
 
 export interface Testimonial {
