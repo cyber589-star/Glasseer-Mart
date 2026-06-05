@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { supabase, supabaseInsert, supabaseUpdate, supabaseDelete } from '@/lib/supabase'
-import { toCamel, toSnake } from '@/lib/db'
+import { toCamel } from '@/lib/db'
 import type { Product } from '@/types'
 
 interface FormState {
@@ -16,8 +16,7 @@ interface FormState {
   comparePrice: string
   shippingFee: number
   tax: number
-  featuredImage: string
-  galleryImages: string
+  images: string[]
   isFeatured: boolean
   isBestSeller: boolean
   isNew: boolean
@@ -33,8 +32,7 @@ const emptyForm = (): FormState => ({
   comparePrice: '',
   shippingFee: 0,
   tax: 0,
-  featuredImage: '',
-  galleryImages: '',
+  images: [],
   isFeatured: false,
   isBestSeller: false,
   isNew: false,
@@ -51,6 +49,7 @@ export default function AdminProducts() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
+  const [urlInput, setUrlInput] = useState('')
 
   const load = async () => {
     if (!supabase) { setProducts([]); setLoading(false); return }
@@ -72,19 +71,28 @@ export default function AdminProducts() {
     return url
   }
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
     const url = await uploadFile(file)
-    if (url) updateForm({ featuredImage: url })
+    if (url) setForm(prev => ({ ...prev, images: [...prev.images, url] }))
+    e.target.value = ''
+  }
+
+  const addUrlImage = () => {
+    const u = urlInput.trim()
+    if (!u) return
+    setForm(prev => ({ ...prev, images: [...prev.images, u] }))
+    setUrlInput('')
+  }
+
+  const removeImage = (index: number) => {
+    setForm(prev => ({ ...prev, images: prev.images.filter((_, i) => i !== index) }))
   }
 
   const save = async () => {
     if (!form.name.trim()) { setError('Product name is required'); return }
     setError('')
     setSaving(true)
-    const images: string[] = []
-    if (form.featuredImage) images.push(form.featuredImage)
-    form.galleryImages.split(',').map(s => s.trim()).filter(Boolean).forEach(u => images.push(u))
 
     const record: Record<string, any> = {
       name: form.name,
@@ -92,7 +100,7 @@ export default function AdminProducts() {
       category: form.category_id || '',
       description: form.description,
       price: form.price,
-      images,
+      images: form.images,
       colors: [],
       features: [],
       specs: [],
@@ -109,9 +117,7 @@ export default function AdminProducts() {
 
     if (editing) {
       const result = await supabaseUpdate<Product>('products', editing.id, record)
-      if (result) {
-        setProducts(prev => prev.map(p => p.id === editing.id ? toCamel<Product>(result) : p))
-      }
+      if (result) setProducts(prev => prev.map(p => p.id === editing.id ? toCamel<Product>(result) : p))
     } else {
       const result = await supabaseInsert<Product>('products', record)
       if (result) setProducts(prev => [toCamel<Product>(result), ...prev])
@@ -137,8 +143,7 @@ export default function AdminProducts() {
       comparePrice: p.comparePrice ? String(p.comparePrice) : '',
       shippingFee: p.shippingFee || 0,
       tax: p.tax || 0,
-      featuredImage: p.images?.[0] || '',
-      galleryImages: (p.images?.slice(1) || []).join(', '),
+      images: p.images || [],
       isFeatured: p.isFeatured || false,
       isBestSeller: p.isBestSeller || false,
       isNew: p.isNew || false,
@@ -260,22 +265,26 @@ export default function AdminProducts() {
               {renderInput('Compare Price (PKR) - optional', form.comparePrice, (v) => updateForm({ comparePrice: v }), 'number')}
 
               <div>
-                <label className="block font-sans text-label-caps text-primary mb-1.5">Featured Image</label>
-                <div className="flex items-center gap-3">
-                  <input type="file" accept="image/*" onChange={handleUpload} className="hidden" ref={fileRef} />
-                  <button onClick={() => fileRef.current?.click()} disabled={uploading} className="flex items-center gap-2 px-4 py-2.5 bg-surface-container-low rounded-xl border border-outline-variant hover:bg-surface-bright transition-all font-sans text-sm text-primary">
-                    <Upload size={16} /> {uploading ? 'Uploading...' : 'Upload Image'}
+                <label className="block font-sans text-label-caps text-primary mb-3">Product Images</label>
+                <div className="flex flex-wrap gap-3 mb-3">
+                  {form.images.map((url, i) => (
+                    <div key={i} className="relative w-24 h-24 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant group">
+                      <img src={url} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
+                      <button onClick={() => removeImage(i)} className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"><X size={12} /></button>
+                      {i === 0 && <span className="absolute bottom-1 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-primary/80 text-on-primary text-[9px] font-sans rounded">Main</span>}
+                    </div>
+                  ))}
+                  <button onClick={() => fileRef.current?.click()} disabled={uploading} className="w-24 h-24 flex flex-col items-center justify-center gap-1 bg-surface-container-low rounded-xl border-2 border-dashed border-outline-variant hover:border-secondary hover:bg-surface-bright transition-all cursor-pointer">
+                    <Upload size={18} className="text-on-surface-variant" />
+                    <span className="font-sans text-[10px] text-on-surface-variant">{uploading ? 'Uploading...' : 'Add Image'}</span>
                   </button>
-                  {renderInput('Or image URL', form.featuredImage, (v) => updateForm({ featuredImage: v }))}
+                  <input type="file" accept="image/*" onChange={handleUploadImage} className="hidden" ref={fileRef} />
                 </div>
-                {form.featuredImage && (
-                  <div className="mt-2 w-24 h-24 bg-surface-bright rounded-xl overflow-hidden border border-outline-variant">
-                    <img src={form.featuredImage} alt="" className="w-full h-full object-contain mix-blend-multiply" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <input type="text" value={urlInput} onChange={e => setUrlInput(e.target.value)} placeholder="Or paste image URL and add..." className="flex-1 px-4 py-2 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-sm text-primary" />
+                  <button onClick={addUrlImage} disabled={!urlInput.trim()} className="px-4 py-2 bg-secondary text-white rounded-xl font-sans text-sm hover:bg-primary transition-all disabled:opacity-50">Add</button>
+                </div>
               </div>
-
-              {renderInput('More Images (comma-separated URLs)', form.galleryImages, (v) => updateForm({ galleryImages: v }))}
 
               <div className="grid grid-cols-2 gap-4">
                 {renderInput('Shipping Fee (PKR)', form.shippingFee, (v) => updateForm({ shippingFee: v }), 'number')}
