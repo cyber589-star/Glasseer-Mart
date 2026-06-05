@@ -35,11 +35,7 @@ export default function CheckoutPage() {
   const deliveryCharges = items.reduce((sum, item) => sum + (item.product.shippingFee || 0) * item.quantity, 0)
   const tax = items.reduce((sum, item) => sum + item.product.price * item.quantity * ((item.product.tax || 0) / 100), 0)
   const taxRate = items.length > 0 ? Math.max(...items.map(i => i.product.tax || 0)) : 0
-  const discount = items.reduce((sum, item) => {
-    const orig = item.product.originalPrice || item.product.comparePrice || 0
-    return sum + (orig > item.product.price ? (orig - item.product.price) * item.quantity : 0)
-  }, 0)
-  const total = subtotal + deliveryCharges + tax - discount
+  const total = subtotal + deliveryCharges + tax
 
   const validate = () => {
     const errs: Record<string, boolean> = {}
@@ -350,12 +346,6 @@ export default function CheckoutPage() {
                 )}
               </span>
             </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-on-surface-variant">
-                    <span className="text-green-600">Discount</span>
-                    <span className="text-green-600">-{formatPrice(discount)}</span>
-                  </div>
-                )}
                 <div className="flex justify-between text-on-surface-variant">
                   <span>Tax {taxRate > 0 ? `(${taxRate}%)` : ''}</span>
                   <span className="text-primary">{formatPrice(tax)}</span>
