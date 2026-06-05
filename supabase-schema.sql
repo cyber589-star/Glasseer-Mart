@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS customers (
   status TEXT DEFAULT 'active',
   joined_date TIMESTAMPTZ DEFAULT NOW()
 );
+DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'customers_email_key') THEN ALTER TABLE customers ADD UNIQUE (email); END IF; END $$;
 ALTER TABLE customers ENABLE ROW LEVEL SECURITY;
 DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE policyname='Admin customers all') THEN CREATE POLICY "Admin customers all" ON customers FOR ALL USING (true); END IF; END $$;
 

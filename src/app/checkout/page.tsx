@@ -84,10 +84,7 @@ export default function CheckoutPage() {
     setOrders((prev) => [order, ...prev])
     if (supabase) {
       void supabase.from('orders').insert(toSnake(order) as any)
-      void supabase.from('customers').upsert(
-        toSnake({ email, name: fullName, mobile: mobileNumber, totalOrders: 1 }) as any,
-        { onConflict: 'email', ignoreDuplicates: false }
-      )
+      void supabase.from('customers').insert(toSnake({ email, name: fullName, mobile: mobileNumber, orders: 1}) as any)
     }
     clearCart()
     setTracking(trackingNumber)
