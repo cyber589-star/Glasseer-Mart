@@ -86,15 +86,12 @@ export default function AdminProducts() {
     if (form.featuredImage) images.push(form.featuredImage)
     form.galleryImages.split(',').map(s => s.trim()).filter(Boolean).forEach(u => images.push(u))
 
-    const record = {
+    const record: Record<string, any> = {
       name: form.name,
       slug: form.slug || form.name.toLowerCase().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-').replace(/^-+|-+$/g, ''),
-      category_id: form.category_id || null,
+      category: form.category_id || '',
       description: form.description,
       price: form.price,
-      compare_price: form.comparePrice ? Number(form.comparePrice) : 0,
-      shipping_fee: form.shippingFee || 0,
-      tax: form.tax || 0,
       images,
       colors: [],
       features: [],
@@ -104,8 +101,11 @@ export default function AdminProducts() {
       is_best_seller: form.isBestSeller,
       is_new: form.isNew,
       in_stock: form.inStock,
-      is_active: true,
     }
+    if (form.comparePrice) record.compare_price = Number(form.comparePrice)
+    if (form.shippingFee) record.shipping_fee = form.shippingFee
+    if (form.tax) record.tax = form.tax
+    record.is_active = true
 
     if (editing) {
       const result = await supabaseUpdate<Product>('products', editing.id, record)

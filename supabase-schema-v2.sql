@@ -56,11 +56,12 @@ CREATE TABLE products (
   name            TEXT NOT NULL,
   slug            TEXT NOT NULL UNIQUE,
   description     TEXT DEFAULT '',
-  category_id     UUID REFERENCES categories(id) ON DELETE SET NULL,
+  category        TEXT DEFAULT '',
   price           NUMERIC NOT NULL DEFAULT 0,
   compare_price   NUMERIC DEFAULT 0,
   shipping_fee    NUMERIC DEFAULT 0,
   tax             NUMERIC DEFAULT 0,
+  images          JSONB DEFAULT '[]',
   colors          JSONB DEFAULT '[]',
   features        JSONB DEFAULT '[]',
   specs           JSONB DEFAULT '[]',
@@ -77,7 +78,7 @@ CREATE TABLE products (
 );
 
 CREATE INDEX idx_products_slug        ON products(slug);
-CREATE INDEX idx_products_category    ON products(category_id);
+CREATE INDEX idx_products_category    ON products(category);
 CREATE INDEX idx_products_active      ON products(is_active);
 CREATE INDEX idx_products_featured    ON products(is_featured) WHERE is_featured = true;
 CREATE INDEX idx_products_bestseller  ON products(is_best_seller) WHERE is_best_seller = true;

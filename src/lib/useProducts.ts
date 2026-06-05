@@ -19,7 +19,7 @@ export function useProducts() {
       try {
         const { data, error: err } = await supabase
           .from('products')
-          .select('*, product_images(url, alt, sort_order)')
+          .select('*')
           .order('created_at', { ascending: false })
         if (err) throw err
         if (data) {
