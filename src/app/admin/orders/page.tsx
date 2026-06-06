@@ -146,7 +146,7 @@ export default function AdminOrders() {
                                 ))}
                                 <hr className="my-1 border-outline-variant/50" />
                                 <p><span className="text-primary">Subtotal:</span> {formatPrice(o.subtotal)}</p>
-                                {o.lensType && o.lensPrice && <p><span className="text-primary">Lens ({o.lensType}):</span> {formatPrice(Number(o.lensPrice))}</p>}
+                                {o.lensType && o.lensPrice && <p><span className="text-primary">{o.powerType === 'double' ? 'Double' : 'Single'} Vision Lens ({o.lensType}):</span> {formatPrice(Number(o.lensPrice))}</p>}
                                 <p><span className="text-primary">Delivery:</span> {formatPrice(o.deliveryCharges || 0)}</p>
                                 <p className="text-primary font-medium">Total: {formatPrice(o.total)}</p>
                               </div>

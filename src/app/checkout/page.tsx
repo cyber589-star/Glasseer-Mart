@@ -13,7 +13,7 @@ import type { Order, OrderItem } from '@/types'
 
 const emptyOrders: Order[] = []
 
-const lensOptions = [
+const singleVisionLenses = [
   { label: 'White CR Lens', price: 1500 },
   { label: 'CR MC Lens', price: 2000 },
   { label: 'Blue Cut Lens', price: 2500 },
@@ -23,6 +23,18 @@ const lensOptions = [
   { label: 'Photo Sun CR MC', price: 2500 },
   { label: 'Photo Sun Blue Cut', price: 3000 },
   { label: 'Photo Sun Drive Lens', price: 4500 },
+]
+
+const doubleVisionLenses = [
+  { label: 'White CR Lens', price: 3500 },
+  { label: 'CR MC Lens', price: 5500 },
+  { label: 'Blue Cut Lens', price: 6500 },
+  { label: 'Digital Lens', price: 9500 },
+  { label: 'Night Drive Lens', price: 15000 },
+  { label: 'All In One Lens', price: 22000 },
+  { label: 'Photo Sun CR MC', price: 7500 },
+  { label: 'Photo Sun Blue Cut', price: 8000 },
+  { label: 'Photo Sun Drive Lens', price: 12000 },
 ]
 
 export default function CheckoutPage() {
@@ -44,12 +56,14 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [placing, setPlacing] = useState(false)
   const [needsPower, setNeedsPower] = useState(false)
+  const [powerType, setPowerType] = useState<'single' | 'double' | ''>('')
   const [selectedLens, setSelectedLens] = useState('')
   const [prescriptionImage, setPrescriptionImage] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
 
-  const lensPrice = needsPower && selectedLens ? lensOptions.find(l => l.label === selectedLens)?.price || 0 : 0
+  const activeLenses = powerType === 'double' ? doubleVisionLenses : singleVisionLenses
+  const lensPrice = needsPower && selectedLens ? activeLenses.find(l => l.label === selectedLens)?.price || 0 : 0
   const deliveryCharges = items.reduce((sum, item) => sum + (item.product.shippingFee || 0) * item.quantity, 0)
   const tax = items.reduce((sum, item) => sum + item.product.price * item.quantity * ((item.product.tax || 0) / 100), 0)
   const total = subtotal + deliveryCharges + tax + lensPrice
@@ -62,7 +76,8 @@ export default function CheckoutPage() {
     if (!province.trim()) errs.province = true
     if (!city.trim()) errs.city = true
     if (!address.trim()) errs.address = true
-    if (needsPower && !selectedLens) errs.lens = true
+    if (needsPower && !powerType) errs.powerType = true
+    if (needsPower && powerType && !selectedLens) errs.lens = true
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -109,6 +124,7 @@ export default function CheckoutPage() {
       trackingNumber,
       date: new Date().toISOString(),
       needsPower,
+      powerType: needsPower ? powerType : '',
       prescriptionImage: needsPower ? prescriptionImage : '',
       lensType: needsPower ? selectedLens : '',
       lensPrice: needsPower ? lensPrice : 0,
@@ -331,7 +347,7 @@ export default function CheckoutPage() {
               <p className="font-sans text-sm text-on-surface-variant mb-4">Do you need glasses power (prescription) for any of these items?</p>
               <div className="flex gap-4 mb-4">
                 <button
-                  onClick={() => { setNeedsPower(false); setSelectedLens(''); setPrescriptionImage('') }}
+                  onClick={() => { setNeedsPower(false); setPowerType(''); setSelectedLens(''); setPrescriptionImage('') }}
                   className={`px-6 py-2.5 rounded-full border font-sans text-sm transition-all ${
                     !needsPower ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant'
                   }`}
@@ -344,23 +360,51 @@ export default function CheckoutPage() {
                 >Yes</button>
               </div>
               {needsPower && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div>
-                    <label className="block font-sans text-label-caps text-primary mb-2">
-                      Select Lens Type <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      value={selectedLens}
-                      onChange={(e) => { setSelectedLens(e.target.value); setErrors((p) => ({ ...p, lens: false })) }}
-                      className={`w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary ${errors.lens ? 'ring-2 ring-red-400' : ''}`}
-                    >
-                      <option value="">— Select Lens Type —</option>
-                      {lensOptions.map((l) => (
-                        <option key={l.label} value={l.label}>{l.label} — {formatPrice(l.price)}</option>
-                      ))}
-                    </select>
-                    {errors.lens && <p className="font-sans text-xs text-red-500 mt-1">Please select a lens type</p>}
+                    <label className="block font-sans text-label-caps text-primary mb-3">Power Type <span className="text-red-500">*</span></label>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => { setPowerType('single'); setSelectedLens(''); setErrors((p) => ({ ...p, powerType: false })) }}
+                        className={`flex-1 px-5 py-3 rounded-xl border font-sans text-sm transition-all text-left ${
+                          powerType === 'single' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
+                        }`}
+                      >
+                        <span className="font-medium block">Single Vision Power</span>
+                        <span className={`text-xs mt-0.5 block ${powerType === 'single' ? 'text-on-primary/70' : 'text-on-surface-variant'}`}>Standard single-focus lenses</span>
+                      </button>
+                      <button
+                        onClick={() => { setPowerType('double'); setSelectedLens(''); setErrors((p) => ({ ...p, powerType: false })) }}
+                        className={`flex-1 px-5 py-3 rounded-xl border font-sans text-sm transition-all text-left ${
+                          powerType === 'double' ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant hover:border-primary'
+                        }`}
+                      >
+                        <span className="font-medium block">Double Vision Power</span>
+                        <span className={`text-xs mt-0.5 block ${powerType === 'double' ? 'text-on-primary/70' : 'text-on-surface-variant'}`}>Near & Distance (Bifocal/Progressive)</span>
+                      </button>
+                    </div>
+                    {errors.powerType && <p className="font-sans text-xs text-red-500 mt-1">Please select a power type</p>}
                   </div>
+
+                  {powerType && (
+                    <div>
+                      <label className="block font-sans text-label-caps text-primary mb-2">
+                        Select Lens Type <span className="text-red-500">*</span>
+                      </label>
+                      <select
+                        value={selectedLens}
+                        onChange={(e) => { setSelectedLens(e.target.value); setErrors((p) => ({ ...p, lens: false })) }}
+                        className={`w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary ${errors.lens ? 'ring-2 ring-red-400' : ''}`}
+                      >
+                        <option value="">— Select Lens Type —</option>
+                        {activeLenses.map((l) => (
+                          <option key={l.label} value={l.label}>{l.label} — {formatPrice(l.price)}</option>
+                        ))}
+                      </select>
+                      {errors.lens && <p className="font-sans text-xs text-red-500 mt-1">Please select a lens type</p>}
+                    </div>
+                  )}
+
                   <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
                     <h3 className="font-sans text-label-caps text-amber-800 mb-3">Upload Prescription</h3>
                     <p className="font-sans text-sm text-amber-700 mb-3">Please upload your glasses power prescription so we can prepare your lenses.</p>
@@ -435,9 +479,11 @@ export default function CheckoutPage() {
                   <span className="text-on-surface-variant">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                   <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                {needsPower && selectedLens && (
+                {needsPower && powerType && selectedLens && (
                   <div className="flex items-center justify-between text-secondary">
-                    <span className="font-medium">Lens: {selectedLens}</span>
+                    <span className="font-medium">
+                      {powerType === 'double' ? 'Double' : 'Single'} Vision Lens: {selectedLens}
+                    </span>
                     <span className="font-medium">{formatPrice(lensPrice)}</span>
                   </div>
                 )}

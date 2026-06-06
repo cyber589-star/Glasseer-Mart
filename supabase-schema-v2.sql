@@ -179,6 +179,7 @@ CREATE TABLE orders (
   tracking_number   TEXT DEFAULT '',
   date              TIMESTAMPTZ DEFAULT NOW(),
   needs_power       BOOLEAN DEFAULT false,
+  power_type        TEXT DEFAULT '',
   prescription_image TEXT DEFAULT '',
   lens_type         TEXT DEFAULT '',
   lens_price        NUMERIC DEFAULT 0,

@@ -132,6 +132,7 @@ export interface Order {
   trackingNumber: string
   date: string
   needsPower?: boolean
+  powerType?: string
   prescriptionImage?: string
   lensType?: string
   lensPrice?: number
