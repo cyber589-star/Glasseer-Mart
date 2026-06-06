@@ -180,6 +180,8 @@ CREATE TABLE orders (
   date              TIMESTAMPTZ DEFAULT NOW(),
   needs_power       BOOLEAN DEFAULT false,
   prescription_image TEXT DEFAULT '',
+  lens_type         TEXT DEFAULT '',
+  lens_price        NUMERIC DEFAULT 0,
   created_at        TIMESTAMPTZ DEFAULT NOW(),
   updated_at        TIMESTAMPTZ DEFAULT NOW()
 );

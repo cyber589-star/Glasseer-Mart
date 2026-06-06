@@ -13,6 +13,18 @@ import type { Order, OrderItem } from '@/types'
 
 const emptyOrders: Order[] = []
 
+const lensOptions = [
+  { label: 'White CR Lens', price: 1500 },
+  { label: 'CR MC Lens', price: 2000 },
+  { label: 'Blue Cut Lens', price: 2500 },
+  { label: 'Digital Lens', price: 3500 },
+  { label: 'Night Drive Lens', price: 4000 },
+  { label: 'All In One Lens', price: 6000 },
+  { label: 'Photo Sun CR MC', price: 2500 },
+  { label: 'Photo Sun Blue Cut', price: 3000 },
+  { label: 'Photo Sun Drive Lens', price: 4500 },
+]
+
 export default function CheckoutPage() {
   const { items, subtotal, itemCount, clearCart } = useCart()
   const [, setOrders] = useLocalStorage<Order[]>('admin-orders', emptyOrders)
@@ -32,14 +44,15 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Record<string, boolean>>({})
   const [placing, setPlacing] = useState(false)
   const [needsPower, setNeedsPower] = useState(false)
+  const [selectedLens, setSelectedLens] = useState('')
   const [prescriptionImage, setPrescriptionImage] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
 
+  const lensPrice = needsPower && selectedLens ? lensOptions.find(l => l.label === selectedLens)?.price || 0 : 0
   const deliveryCharges = items.reduce((sum, item) => sum + (item.product.shippingFee || 0) * item.quantity, 0)
   const tax = items.reduce((sum, item) => sum + item.product.price * item.quantity * ((item.product.tax || 0) / 100), 0)
-  const taxRate = items.length > 0 ? Math.max(...items.map(i => i.product.tax || 0)) : 0
-  const total = subtotal + deliveryCharges + tax
+  const total = subtotal + deliveryCharges + tax + lensPrice
 
   const validate = () => {
     const errs: Record<string, boolean> = {}
@@ -49,6 +62,7 @@ export default function CheckoutPage() {
     if (!province.trim()) errs.province = true
     if (!city.trim()) errs.city = true
     if (!address.trim()) errs.address = true
+    if (needsPower && !selectedLens) errs.lens = true
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -96,6 +110,8 @@ export default function CheckoutPage() {
       date: new Date().toISOString(),
       needsPower,
       prescriptionImage: needsPower ? prescriptionImage : '',
+      lensType: needsPower ? selectedLens : '',
+      lensPrice: needsPower ? lensPrice : 0,
     }
 
     setOrders((prev) => [order, ...prev])
@@ -315,7 +331,7 @@ export default function CheckoutPage() {
               <p className="font-sans text-sm text-on-surface-variant mb-4">Do you need glasses power (prescription) for any of these items?</p>
               <div className="flex gap-4 mb-4">
                 <button
-                  onClick={() => { setNeedsPower(false); setPrescriptionImage('') }}
+                  onClick={() => { setNeedsPower(false); setSelectedLens(''); setPrescriptionImage('') }}
                   className={`px-6 py-2.5 rounded-full border font-sans text-sm transition-all ${
                     !needsPower ? 'bg-primary text-on-primary border-primary' : 'bg-transparent text-primary border-outline-variant'
                   }`}
@@ -328,25 +344,43 @@ export default function CheckoutPage() {
                 >Yes</button>
               </div>
               {needsPower && (
-                <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
-                  <h3 className="font-sans text-label-caps text-amber-800 mb-3">Upload Prescription</h3>
-                  <p className="font-sans text-sm text-amber-700 mb-3">Please upload your glasses power prescription so we can prepare your lenses.</p>
-                  <input type="file" accept="image/*" onChange={handlePowerFile} className="hidden" ref={fileRef} />
-                  <input type="file" accept="image/*" capture="environment" onChange={handlePowerFile} className="hidden" ref={cameraRef} />
-                  <div className="flex flex-wrap gap-3">
-                    <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
-                      <Upload size={16} /> {prescriptionImage ? 'Change Photo' : 'Upload Photo'}
-                    </button>
-                    <button onClick={() => cameraRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
-                      <Camera size={16} /> Take Photo
-                    </button>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-sans text-label-caps text-primary mb-2">
+                      Select Lens Type <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      value={selectedLens}
+                      onChange={(e) => { setSelectedLens(e.target.value); setErrors((p) => ({ ...p, lens: false })) }}
+                      className={`w-full px-4 py-3 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary ${errors.lens ? 'ring-2 ring-red-400' : ''}`}
+                    >
+                      <option value="">— Select Lens Type —</option>
+                      {lensOptions.map((l) => (
+                        <option key={l.label} value={l.label}>{l.label} — {formatPrice(l.price)}</option>
+                      ))}
+                    </select>
+                    {errors.lens && <p className="font-sans text-xs text-red-500 mt-1">Please select a lens type</p>}
                   </div>
-                  {prescriptionImage && (
-                    <div className="mt-3 flex items-center gap-3">
-                      <img src={prescriptionImage} alt="Prescription" className="w-20 h-20 object-contain rounded-lg border border-amber-200 bg-white" />
-                      <span className="font-sans text-xs text-green-700">Photo uploaded ✓</span>
+                  <div className="bg-amber-50 rounded-xl p-5 border border-amber-200">
+                    <h3 className="font-sans text-label-caps text-amber-800 mb-3">Upload Prescription</h3>
+                    <p className="font-sans text-sm text-amber-700 mb-3">Please upload your glasses power prescription so we can prepare your lenses.</p>
+                    <input type="file" accept="image/*" onChange={handlePowerFile} className="hidden" ref={fileRef} />
+                    <input type="file" accept="image/*" capture="environment" onChange={handlePowerFile} className="hidden" ref={cameraRef} />
+                    <div className="flex flex-wrap gap-3">
+                      <button onClick={() => fileRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
+                        <Upload size={16} /> {prescriptionImage ? 'Change Photo' : 'Upload Photo'}
+                      </button>
+                      <button onClick={() => cameraRef.current?.click()} className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-amber-300 hover:bg-amber-100 transition-all font-sans text-sm text-amber-800">
+                        <Camera size={16} /> Take Photo
+                      </button>
                     </div>
-                  )}
+                    {prescriptionImage && (
+                      <div className="mt-3 flex items-center gap-3">
+                        <img src={prescriptionImage} alt="Prescription" className="w-20 h-20 object-contain rounded-lg border border-amber-200 bg-white" />
+                        <span className="font-sans text-xs text-green-700">Photo uploaded ✓</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -401,6 +435,12 @@ export default function CheckoutPage() {
                   <span className="text-on-surface-variant">Subtotal ({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
                   <span className="text-primary font-medium">{formatPrice(subtotal)}</span>
                 </div>
+                {needsPower && selectedLens && (
+                  <div className="flex items-center justify-between text-secondary">
+                    <span className="font-medium">Lens: {selectedLens}</span>
+                    <span className="font-medium">{formatPrice(lensPrice)}</span>
+                  </div>
+                )}
                 {deliveryCharges > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-on-surface-variant">Shipping</span>

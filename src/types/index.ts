@@ -133,6 +133,8 @@ export interface Order {
   date: string
   needsPower?: boolean
   prescriptionImage?: string
+  lensType?: string
+  lensPrice?: number
 }
 
 export interface CartItem {
