@@ -49,7 +49,7 @@ export function Navbar() {
           </button>
 
           <Link href="/" className="z-10 relative flex items-center">
-            <img src="/images/logo.png" alt="GlaseerMart" className="h-12 md:h-16 w-auto" />
+            <img src="/images/logo.png" alt="GlaseerMart" className="h-14 md:h-20 w-auto" />
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">

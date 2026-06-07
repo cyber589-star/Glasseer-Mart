@@ -19,6 +19,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="scroll-smooth">
+      <head>
+        <meta name="google-site-verification" content="googleacce47e7428bb71c" />
+        <link rel="icon" href="/images/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/images/logo.png" />
+      </head>
       <body className="font-sans text-on-surface antialiased min-h-screen flex flex-col bg-white">
         <CartProvider>
           <WishlistProvider>
