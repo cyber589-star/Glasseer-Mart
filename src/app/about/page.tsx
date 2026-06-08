@@ -41,13 +41,6 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-
-        <div className="text-center max-w-2xl mx-auto">
-          <h2 className="font-serif text-headline-md text-primary mb-6">Our Promise</h2>
-          <p className="font-sans text-body-lg text-on-surface-variant leading-relaxed mb-8">
-            Every pair of GlaseerMart frames comes with our commitment to quality, comfort, and style. We stand behind our products with a 2-year warranty and a 30-day satisfaction guarantee.
-          </p>
-        </div>
       </Container>
     </div>
   )
