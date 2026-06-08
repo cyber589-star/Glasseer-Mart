@@ -83,28 +83,57 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
-              '@type': 'Store',
-              name: 'GlaseerMart',
-              url: siteUrl,
-              logo: `${siteUrl}/images/logo.png`,
-              image: `${siteUrl}/images/logo.png`,
-              description: 'Premium optical glasses, fashion frames, and sunglasses.',
-              email: 'contact@glasseermart.store',
-              currencyAccepted: 'PKR',
-              paymentAccepted: 'Cash on Delivery',
-              priceRange: '₨500 - ₨50,000',
-              sameAs: [
-                'https://www.instagram.com/glaseer.mart',
+              '@graph': [
+                {
+                  '@type': 'Organization',
+                  '@id': `${siteUrl}/#organization`,
+                  name: 'GlaseerMart',
+                  url: siteUrl,
+                  logo: `${siteUrl}/images/logo.png`,
+                  image: `${siteUrl}/images/logo.png`,
+                  description: 'Premium optical glasses, fashion frames, and sunglasses in Pakistan.',
+                  email: 'contact@glasseermart.store',
+                  address: { '@type': 'PostalAddress', addressCountry: 'PK' },
+                  sameAs: ['https://www.instagram.com/glaseer.mart'],
+                },
+                {
+                  '@type': 'WebSite',
+                  '@id': `${siteUrl}/#website`,
+                  url: siteUrl,
+                  name: 'GlaseerMart',
+                  description: 'Premium eyewear & glasses online in Pakistan.',
+                  publisher: { '@id': `${siteUrl}/#organization` },
+                  inLanguage: 'en',
+                },
+                {
+                  '@type': 'Store',
+                  '@id': `${siteUrl}/#store`,
+                  url: siteUrl,
+                  name: 'GlaseerMart',
+                  image: `${siteUrl}/images/logo.png`,
+                  description: 'Premium optical glasses, fashion frames, and sunglasses in Pakistan.',
+                  parentOrganization: { '@id': `${siteUrl}/#organization` },
+                  currencyAccepted: 'PKR',
+                  paymentAccepted: 'Cash on Delivery',
+                  priceRange: '₨500 - ₨50,000',
+                  address: { '@type': 'PostalAddress', addressCountry: 'PK' },
+                  makesOffer: [
+                    { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Prescription Glasses', category: 'Eyewear' } },
+                    { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Sunglasses', category: 'Eyewear' } },
+                    { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Blue Light Glasses', category: 'Eyewear' } },
+                    { '@type': 'Offer', itemOffered: { '@type': 'Product', name: 'Computer Glasses', category: 'Eyewear' } },
+                  ],
+                },
+                {
+                  '@type': 'BreadcrumbList',
+                  '@id': `${siteUrl}/#breadcrumb`,
+                  itemListElement: [
+                    { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
+                    { '@type': 'ListItem', position: 2, name: 'Shop', item: `${siteUrl}/shop` },
+                    { '@type': 'ListItem', position: 3, name: 'Blog', item: `${siteUrl}/blog` },
+                  ],
+                },
               ],
-              address: {
-                '@type': 'PostalAddress',
-                addressCountry: 'PK',
-              },
-              offers: {
-                '@type': 'AggregateOffer',
-                priceCurrency: 'PKR',
-                availability: 'https://schema.org/InStock',
-              },
             }),
           }}
         />

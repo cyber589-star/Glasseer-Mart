@@ -12,6 +12,7 @@ const navLinks = [
   { href: '/shop', label: 'Shop' },
   { href: '/shop?category=prescription-glasses', label: 'Prescription' },
   { href: '/shop?category=sunglasses', label: 'Sunglasses' },
+  { href: '/blog', label: 'Blog' },
   { href: '/about', label: 'About' },
   { href: '/contact', label: 'Contact' },
 ]

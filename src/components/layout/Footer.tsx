@@ -10,6 +10,7 @@ const footerLinks = {
     { href: '/shop?category=new-arrivals', label: 'New Arrivals' },
     { href: '/shop?category=best-sellers', label: 'Best Sellers' },
     { href: '/about', label: 'About Us' },
+    { href: '/blog', label: 'Blog' },
   ],
   categories: [
     { href: '/shop?category=prescription-glasses', label: 'Prescription Glasses' },
