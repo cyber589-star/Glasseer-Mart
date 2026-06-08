@@ -1,6 +1,10 @@
-'use client'
-
+import type { Metadata } from 'next'
 import { Container } from '@/components/ui'
+
+export const metadata: Metadata = {
+  title: 'Terms & Conditions',
+  description: 'GlaseerMart terms and conditions — product pricing, orders, shipping, returns, and legal information.',
+}
 
 export default function TermsPage() {
   return (

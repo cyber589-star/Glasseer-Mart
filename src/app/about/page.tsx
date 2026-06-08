@@ -1,6 +1,11 @@
-'use client'
-
+import type { Metadata } from 'next'
 import { Container, SectionHeader } from '@/components/ui'
+
+export const metadata: Metadata = {
+  title: 'About Us',
+  description: 'Learn the GlaseerMart story — where precision meets passion. Premium eyewear crafted for the discerning eye.',
+  openGraph: { title: 'About GlaseerMart | Premium Eyewear', description: 'Learn the GlaseerMart story — where precision meets passion.' },
+}
 
 export default function AboutPage() {
   return (
