@@ -93,8 +93,9 @@ export default function RootLayout({
                   image: `${siteUrl}/images/logo.png`,
                   description: 'Premium optical glasses, fashion frames, and sunglasses in Pakistan.',
                   email: 'contact@glasseermart.store',
-                  address: { '@type': 'PostalAddress', addressCountry: 'PK' },
-                  sameAs: ['https://www.instagram.com/glaseer.mart'],
+                  address: { '@type': 'PostalAddress', addressLocality: 'Lahore', addressRegion: 'Punjab', addressCountry: 'PK' },
+                  areaServed: ['Lahore', 'Karachi', 'Islamabad', 'Peshawar', 'Faisalabad', 'Rawalpindi', 'Multan', 'Quetta', 'Hyderabad'],
+                  sameAs: ['https://www.instagram.com/glaseer.mart', 'https://www.facebook.com/share/1Gr542DxdL/', 'https://www.tiktok.com/@glaseer.mart'],
                 },
                 {
                   '@type': 'WebSite',

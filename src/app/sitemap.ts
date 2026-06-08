@@ -13,6 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/blog/eyewear-trends-2026', priority: 0.6, changeFreq: 'monthly' as const },
     { path: '/blog/how-to-choose-glasses-for-face-shape', priority: 0.6, changeFreq: 'monthly' as const },
     { path: '/blog/benefits-of-blue-light-glasses', priority: 0.6, changeFreq: 'monthly' as const },
+    { path: '/blog/sunglasses-price-pakistan', priority: 0.6, changeFreq: 'monthly' as const },
+    { path: '/blog/prescription-glasses-cost-pakistan', priority: 0.6, changeFreq: 'monthly' as const },
     { path: '/cart', priority: 0.4, changeFreq: 'monthly' as const },
     { path: '/checkout', priority: 0.3, changeFreq: 'monthly' as const },
     { path: '/wishlist', priority: 0.3, changeFreq: 'monthly' as const },

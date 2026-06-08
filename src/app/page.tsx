@@ -10,12 +10,12 @@ import { SocialSection } from '@/components/home/SocialSection'
 import { Newsletter } from '@/components/home/Newsletter'
 
 export const metadata: Metadata = {
-  title: 'GlaseerMart Pakistan — Buy Premium Eyewear & Glasses Online',
-  description: 'Shop premium glasses, eyewear & sunglasses online in Pakistan. Buy prescription glasses, blue light glasses, and fashion frames with Cash on Delivery.',
-  keywords: ['buy glasses online Pakistan', 'eyewear Pakistan', 'prescription glasses', 'sunglasses Pakistan', 'blue light glasses', 'GlaseerMart', 'optical shop Pakistan'],
+  title: 'GlaseerMart Pakistan — Buy Premium Eyewear & Glasses Online with Cash on Delivery',
+  description: 'Buy glasses, prescription eyewear & sunglasses online in Pakistan. Shop premium frames at the best prices with Cash on Delivery in Lahore, Karachi, Islamabad, Peshawar & nationwide. Free shipping available.',
+  keywords: ['buy glasses online Pakistan', 'eyewear Pakistan', 'prescription glasses Pakistan', 'sunglasses Pakistan', 'blue light glasses Pakistan', 'GlaseerMart', 'optical shop Pakistan', 'glasses Lahore', 'sunglasses Karachi', 'eyewear Islamabad'],
   openGraph: {
-    title: 'GlaseerMart Pakistan — Premium Eyewear & Glasses Online',
-    description: 'Shop premium glasses, prescription eyewear & sunglasses in Pakistan. Cash on Delivery nationwide.',
+    title: 'GlaseerMart Pakistan — Premium Glasses & Eyewear with Cash on Delivery',
+    description: 'Shop premium glasses, prescription eyewear & sunglasses online in Pakistan. Cash on Delivery in Lahore, Karachi, Islamabad & all cities.',
   },
 }
 
@@ -51,9 +51,16 @@ export default function HomePage() {
                 acetate and titanium for durability and all-day comfort.
               </p>
               <p>
+                We deliver to <strong>Lahore, Karachi, Islamabad, Peshawar, Faisalabad, Rawalpindi, 
+                Multan, Quetta, Hyderabad, Gujranwala, Sialkot</strong>, and all cities across Pakistan. 
+                Whether you&apos;re in <strong>Gulberg Lahore</strong>, <strong>DHA Karachi</strong>, 
+                <strong>F-7 Islamabad</strong>, or <strong>University Town Peshawar</strong>, we bring premium 
+                eyewear to your doorstep.
+              </p>
+              <p>
                 Shopping at GlaseerMart is simple: browse our collection, select your frame, choose your lens 
-                type if you need prescription power, and we&apos;ll deliver to your doorstep anywhere in Pakistan 
-                with <strong>Cash on Delivery</strong>. No hidden charges, no hassle. We also offer 
+                type if you need prescription power, and we&apos;ll deliver with <strong>Cash on Delivery</strong> 
+                anywhere in Pakistan. No hidden charges, no hassle. We also offer 
                 <strong>free shipping</strong> on select orders and a satisfaction guarantee on every purchase.
               </p>
               <p>

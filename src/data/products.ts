@@ -231,33 +231,43 @@ export const faqs: FAQItem[] = [
   },
   {
     id: '3',
-    question: 'What is your return policy?',
-    answer: 'We offer a 30-day satisfaction guarantee. If you\'re not completely satisfied with your purchase, you can return it within 30 days for a full refund. Frames must be in original condition with all packaging.',
+    question: 'Do you deliver to Lahore, Karachi, Islamabad, and other Pakistani cities?',
+    answer: 'Yes! We deliver to all major cities including Lahore, Karachi, Islamabad, Peshawar, Faisalabad, Rawalpindi, Multan, Quetta, Hyderabad, Gujranwala, Sialkot, and hundreds of smaller towns across Pakistan. Your order will reach you via our trusted courier partners within 2-5 business days.',
   },
   {
     id: '4',
-    question: 'How long does shipping take?',
-    answer: 'Domestic orders typically arrive within 3-5 business days. International shipping takes 7-14 business days. Express shipping is available at checkout for faster delivery.',
+    question: 'What is your return policy?',
+    answer: 'We offer a 7-day satisfaction guarantee. If you\'re not completely satisfied with your purchase, you can return it within 7 days for a full refund. Frames must be in original condition with all packaging. We\'ll arrange a pickup from your city — no shipping costs for you.',
   },
   {
     id: '5',
-    question: 'Do you offer blue light blocking lenses?',
-    answer: 'Absolutely. Many of our frames come with optional blue light filtering lenses, perfect for reducing digital eye strain. Look for the "Computer Glasses" category or select the blue light option during customization.',
+    question: 'How long does delivery take within Pakistan?',
+    answer: 'Orders are delivered within 2-5 business days across Pakistan. Lahore and Karachi typically arrive in 2-3 days, while smaller cities may take up to 5 business days. We also offer express delivery for urgent orders — contact us to arrange it.',
   },
   {
     id: '6',
-    question: 'How do I find my frame size?',
-    answer: 'Each product page includes detailed measurements including lens width, bridge width, and temple length. You can also visit our sizing guide for help determining your perfect fit.',
+    question: 'Do you offer blue light blocking lenses?',
+    answer: 'Yes — many of our frames come with optional blue light filtering lenses, perfect for reducing digital eye strain during long screen hours. Select the blue light lens option during checkout or browse our computer glasses category.',
   },
   {
     id: '7',
-    question: 'Do you offer warranty on your products?',
-    answer: 'Yes, all GlaseerMart frames come with a 2-year warranty against manufacturing defects. This covers frame breakage, hinge issues, and coating defects under normal use.',
+    question: 'How do I find my frame size?',
+    answer: 'Each product page includes lens width, bridge width, and temple length measurements. Most of our frames are medium to large fit. If you\'re unsure, contact us on WhatsApp and we\'ll help you choose the right size.',
   },
   {
     id: '8',
-    question: 'Can I try frames before purchasing?',
-    answer: 'We offer a home try-on program where you can select up to 4 frames to try at home for 5 days. Simply visit our Try-On page to get started.',
+    question: 'Do you offer warranty on your products?',
+    answer: 'Yes, all GlaseerMart frames come with a 1-year warranty against manufacturing defects including frame breakage, hinge issues, and coating defects under normal use.',
+  },
+  {
+    id: '9',
+    question: 'What payment methods do you accept?',
+    answer: 'We accept Cash on Delivery (COD) across Pakistan. No credit card or bank transfer needed — simply pay cash when your order arrives at your doorstep.',
+  },
+  {
+    id: '10',
+    question: 'How can I contact your support team?',
+    answer: 'You can reach us on WhatsApp at 0323-8284762, email us at contact@glasseermart.store, or use the contact form on our website. We respond within 1-2 hours during business hours.',
   },
 ]
 
