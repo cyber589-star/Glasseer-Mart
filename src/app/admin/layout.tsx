@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { 
@@ -29,6 +29,11 @@ const sidebarLinks = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
+  const pageTitle = useMemo(() => {
+    const match = sidebarLinks.find(l => l.href !== '/admin' && pathname.startsWith(l.href))
+    return match?.label || (pathname === '/admin' ? 'Dashboard' : 'Admin')
+  }, [pathname])
   const [authenticated, setAuthenticated] = useState(false)
 
   useEffect(() => {
@@ -155,12 +160,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-30 bg-white border-b border-outline-variant px-4 md:px-6 py-3 flex items-center gap-4">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-primary p-2 -ml-2">
+        <header className="sticky top-0 z-30 bg-white border-b border-outline-variant px-3 md:px-6 py-3 flex items-center gap-2 md:gap-4 min-w-0">
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden text-primary p-2 flex-shrink-0 hover:bg-surface-container-low rounded-xl transition-colors">
             <Menu size={22} />
           </button>
-          <h1 className="font-serif text-headline-sm text-primary flex-1">Dashboard</h1>
-          <Link href="/" className="font-sans text-label-caps text-secondary hover:text-primary transition-colors">
+          <h1 className="font-serif text-headline-sm text-primary flex-1 truncate min-w-0">{pageTitle}</h1>
+          <Link href="/" className="font-sans text-label-caps text-secondary hover:text-primary transition-colors flex-shrink-0 whitespace-nowrap">
             View Site
           </Link>
         </header>
