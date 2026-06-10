@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { HeroSection } from '@/components/home/HeroSection'
 import { AllProducts } from '@/components/home/AllProducts'
 import { BestSellers } from '@/components/home/BestSellers'
+import { SpecialProduct } from '@/components/home/SpecialProduct'
 import { WhyChooseUs } from '@/components/home/WhyChooseUs'
 import { CustomerReviews } from '@/components/home/CustomerReviews'
 import { BrandStory } from '@/components/home/BrandStory'
@@ -25,6 +26,7 @@ export default function HomePage() {
       <HeroSection />
       <AllProducts />
       <BestSellers />
+      <SpecialProduct />
       <WhyChooseUs />
       <CustomerReviews />
       <BrandStory />
