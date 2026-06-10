@@ -111,7 +111,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       )}>
         <div className="h-full flex flex-col">
           <div className="p-6 border-b border-outline-variant flex items-center justify-between">
-            <Link href="/admin" className="font-serif text-headline-sm text-primary">Admin Panel</Link>
+            <Link href="/admin" className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-white font-sans text-label-caps font-bold">AD</div>
+              <div>
+                <p className="font-serif text-headline-sm text-primary leading-tight">Admin</p>
+                <p className="font-sans text-xs text-on-surface-variant">Dashboard</p>
+              </div>
+            </Link>
             <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-primary p-1">
               <X size={20} />
             </button>

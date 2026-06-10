@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
 import { CartProvider } from '@/context/CartContext'
 import { WishlistProvider } from '@/context/WishlistContext'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
-import { WhatsAppButton } from '@/components/layout/WhatsAppButton'
+import { SiteLayout } from '@/components/layout/SiteLayout'
 import './globals.css'
 
 const siteUrl = 'https://www.glasseermart.store'
@@ -140,12 +138,7 @@ export default function RootLayout({
         />
         <CartProvider>
           <WishlistProvider>
-            <Navbar />
-            <main className="flex-grow pt-[72px]">
-              {children}
-            </main>
-            <Footer />
-            <WhatsAppButton />
+            <SiteLayout>{children}</SiteLayout>
           </WishlistProvider>
         </CartProvider>
       </body>
