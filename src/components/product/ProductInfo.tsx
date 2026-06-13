@@ -19,10 +19,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
   const wishlisted = isInWishlist(product.id)
 
   const effectivePrice = product.price
-  const comparePrice = product.originalPrice
+  const comparePrice = product.comparePrice || product.originalPrice
 
-  const discountPercent = product.originalPrice && product.originalPrice > product.price
-    ? Math.round((1 - product.price / product.originalPrice) * 100)
+  const discountPercent = comparePrice && comparePrice > product.price
+    ? Math.round((1 - product.price / comparePrice) * 100)
     : 0
 
   const handleAddToCart = () => {

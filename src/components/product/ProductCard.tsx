@@ -11,6 +11,7 @@ export function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart()
   const { addItem: addToWishlist, removeItem, isInWishlist } = useWishlist()
   const wishlisted = isInWishlist(product.id)
+  const showPrice = product.comparePrice || product.originalPrice
 
   return (
     <div className="group cursor-pointer h-full flex flex-col">
@@ -26,7 +27,7 @@ export function ProductCard({ product }: { product: Product }) {
               New
             </span>
           )}
-          {product.originalPrice && (
+          {showPrice && (
             <span className="absolute top-4 right-4 px-3 py-1 bg-secondary text-white rounded-full font-sans text-label-caps">
               Sale
             </span>
@@ -59,8 +60,8 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
           <div className="text-right flex-shrink-0">
             <span className="font-sans text-label-caps text-primary whitespace-nowrap">{formatPrice(product.price)}</span>
-            {product.originalPrice && (
-              <span className="font-sans text-label-caps text-on-surface-variant line-through ml-1.5 whitespace-nowrap">{formatPrice(product.originalPrice)}</span>
+            {showPrice && (
+              <span className="font-sans text-label-caps text-on-surface-variant line-through ml-1.5 whitespace-nowrap">{formatPrice(showPrice)}</span>
             )}
           </div>
         </div>
