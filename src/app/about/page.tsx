@@ -16,9 +16,9 @@ export default function AboutPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
           <div className="aspect-square bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg flex items-center justify-center p-16">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuCV5F1QAMyokPONLCxe62PDuS8LmTLev_nO90QQW16-9rPJuODCKxlGiHftREa1oTg0VCe7yxJwuppfM0C_2949771BXl8WK6xGnflyV6x7thsFvaqhwlDvKEtRciY3xJ9Qu3KHt3h6VR4CMOQ9VuN7j0ZFmmj8Tjjaag88sKe2pXhrCrR54e8gf1wuXouejNzqOPX92EcM60YwU4m6Ai1l_Hs6FT5lnrxddsaFUf3Kg8tSMgzllRnfgxxpR2I7m17tDjaEi_QBd5Yf"
+              src="/images/1.PNG"
               alt="GlaseerMart craftsmanship"
-              className="w-full h-full object-contain mix-blend-multiply"
+              className="w-full h-full object-cover rounded-3xl"
             />
           </div>
           <div className="space-y-6">
