@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ProductGalleryProps {
   images: string[]
@@ -14,6 +15,7 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   const allImages = images
+  const hasMultiple = allImages.length > 1
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
@@ -21,6 +23,10 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
     const x = ((e.clientX - rect.left) / rect.width) * 100
     const y = ((e.clientY - rect.top) / rect.height) * 100
     setCursorPos({ x, y })
+  }
+
+  const goTo = (dir: number) => {
+    setSelected((prev) => (prev + dir + allImages.length) % allImages.length)
   }
 
   return (
@@ -44,6 +50,24 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
         <span className="absolute top-4 right-4 px-3 py-1.5 bg-black/60 text-white text-xs rounded-full font-sans">
           {selected + 1} / {allImages.length}
         </span>
+        {hasMultiple && (
+          <>
+            <button
+              onClick={() => goTo(-1)}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110"
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={20} className="text-primary" />
+            </button>
+            <button
+              onClick={() => goTo(1)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110"
+              aria-label="Next image"
+            >
+              <ChevronRight size={20} className="text-primary" />
+            </button>
+          </>
+        )}
       </div>
       {allImages.length > 1 && (
         <div className="flex gap-4">
