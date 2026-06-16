@@ -38,9 +38,9 @@ export function BrandStory() {
           </div>
           <div className="relative aspect-square bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg">
             <img
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP7hhJf3SO9NKeyV2LQ33ayhhBNiI6d0xQZ4C9jEpOmdshUIGmNYozf4FtJTNadTbx94l1nrR5cbcMURCpPGVu2hpuFI69i7iXv4-BpD-p7WiFQRT4trI3S6vp_4Z3dxN0rA9930yOCzAkx98DJ7U6w-xUQLQ4IcECZZOjqs_CkA034DZ1JbNenXvJYPj7h10tKAvg0A2v3cJ0lrr_S6lyj0_HMkr6Nrl8gTvEdj2w1N_Sif9oHHNX8gFV3Yv__HjEpILPEBphGkf6"
+              src="/images/1.PNG"
               alt="GlaseerMart craftsmanship"
-              className="absolute inset-0 w-full h-full object-contain mix-blend-multiply p-12"
+              className="absolute inset-0 w-full h-full object-cover rounded-3xl"
             />
           </div>
         </div>
