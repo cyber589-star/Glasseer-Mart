@@ -39,7 +39,6 @@ export function ProductFilter() {
               }`}
             >
               {cat.name}
-              <span className="text-sm text-on-surface-variant ml-2">({cat.count})</span>
             </button>
           ))}
         </div>
