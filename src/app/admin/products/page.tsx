@@ -8,6 +8,35 @@ import { supabase, supabaseInsert, supabaseUpdate, supabaseDelete } from '@/lib/
 import { toCamel } from '@/lib/db'
 import type { Product } from '@/types'
 
+const MAX_FILE_SIZE = 1.5 * 1024 * 1024
+const TARGET_WIDTH = 800
+const TARGET_HEIGHT = 857
+
+async function compressImage(file: File): Promise<File> {
+  if (file.size <= MAX_FILE_SIZE && file.type === 'image/webp') return file
+
+  const bitmap = await createImageBitmap(file)
+  const canvas = document.createElement('canvas')
+  canvas.width = TARGET_WIDTH
+  canvas.height = TARGET_HEIGHT
+  const ctx = canvas.getContext('2d')!
+  const scale = Math.max(TARGET_WIDTH / bitmap.width, TARGET_HEIGHT / bitmap.height)
+  const sw = TARGET_WIDTH / scale
+  const sh = TARGET_HEIGHT / scale
+  const sx = (bitmap.width - sw) / 2
+  const sy = (bitmap.height - sh) / 2
+  ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, TARGET_WIDTH, TARGET_HEIGHT)
+  bitmap.close()
+
+  return new Promise<File>((resolve) => {
+    canvas.toBlob(
+      (blob) => resolve(new File([blob!], file.name.replace(/\.[^.]+$/, '.webp'), { type: 'image/webp' })),
+      'image/webp',
+      0.85
+    )
+  })
+}
+
 interface FormState {
   name: string
   slug: string
@@ -64,9 +93,10 @@ export default function AdminProducts() {
   const uploadFile = async (file: File): Promise<string> => {
     if (!supabase) return ''
     setUploading(true)
-    const ext = file.name.split('.').pop()
+    const compressed = await compressImage(file)
+    const ext = compressed.name.split('.').pop()
     const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { data } = await supabase.storage.from('product-images').upload(path, file)
+    const { data } = await supabase.storage.from('product-images').upload(path, compressed)
     const url = data ? supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl : ''
     setUploading(false)
     return url
@@ -74,6 +104,7 @@ export default function AdminProducts() {
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]; if (!file) return
+    if (!file.type.startsWith('image/')) { setError('Only image files are allowed'); e.target.value = ''; return }
     const url = await uploadFile(file)
     if (url) setForm(prev => ({ ...prev, images: [...prev.images, url] }))
     e.target.value = ''

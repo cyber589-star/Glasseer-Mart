@@ -72,8 +72,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="preconnect" href="https://wavigfakgctkcgjfbswv.supabase.co" />
-        <link rel="dns-prefetch" href="https://wavigfakgctkcgjfbswv.supabase.co" />
+        <link rel="preconnect" href="https://zfcbazvseltxqurcmadz.supabase.co" />
+        <link rel="dns-prefetch" href="https://zfcbazvseltxqurcmadz.supabase.co" />
       </head>
       <body className="font-sans text-on-surface antialiased min-h-screen flex flex-col bg-white">
         <script
@@ -129,7 +129,6 @@ export default function RootLayout({
                   itemListElement: [
                     { '@type': 'ListItem', position: 1, name: 'Home', item: siteUrl },
                     { '@type': 'ListItem', position: 2, name: 'Shop', item: `${siteUrl}/shop` },
-                    { '@type': 'ListItem', position: 3, name: 'Blog', item: `${siteUrl}/blog` },
                   ],
                 },
               ],
