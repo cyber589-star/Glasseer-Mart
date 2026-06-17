@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search, User, ShoppingBag, Heart, Menu, X } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { useWishlist } from '@/context/WishlistContext'
@@ -50,7 +51,7 @@ export function Navbar() {
           </button>
 
           <Link href="/" className="z-10 relative flex items-center">
-            <img src="/images/logo.png" alt="GlaseerMart" className="h-20 w-auto" />
+            <Image src="/images/logo.png" alt="GlaseerMart" width={80} height={80} className="h-20 w-auto" priority />
           </Link>
 
           <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 -translate-x-1/2">

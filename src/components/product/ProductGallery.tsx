@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface ProductGalleryProps {
@@ -36,32 +37,35 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
         onMouseEnter={() => setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
-        className="aspect-square bg-surface-bright rounded-3xl overflow-hidden flex items-center justify-center p-12 ambient-shadow-lg cursor-crosshair relative"
+        className="aspect-square bg-surface-bright rounded-3xl overflow-hidden flex items-center justify-center ambient-shadow-lg cursor-crosshair relative"
       >
-        <img
+        <Image
           src={allImages[selected]}
           alt={`${name} - View ${selected + 1}`}
-          className="w-full h-full object-contain mix-blend-multiply transition-transform duration-200"
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-contain mix-blend-multiply transition-transform duration-200 p-12"
           style={{
             transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
             transformOrigin: `${cursorPos.x}% ${cursorPos.y}%`,
           }}
+          priority
         />
-        <span className="absolute top-4 right-4 px-3 py-1.5 bg-black/60 text-white text-xs rounded-full font-sans">
+        <span className="absolute top-4 right-4 px-3 py-1.5 bg-black/60 text-white text-xs rounded-full font-sans z-10">
           {selected + 1} / {allImages.length}
         </span>
         {hasMultiple && (
           <>
             <button
               onClick={() => goTo(-1)}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110"
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110 z-10"
               aria-label="Previous image"
             >
               <ChevronLeft size={20} className="text-primary" />
             </button>
             <button
               onClick={() => goTo(1)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110"
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all hover:bg-white hover:scale-110 z-10"
               aria-label="Next image"
             >
               <ChevronRight size={20} className="text-primary" />
@@ -75,11 +79,11 @@ export function ProductGallery({ images, name }: ProductGalleryProps) {
             <button
               key={i}
               onClick={() => setSelected(i)}
-              className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 flex items-center justify-center p-4 ${
+              className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all duration-300 flex items-center justify-center p-4 relative ${
                 i === selected ? 'border-primary ambient-shadow' : 'border-transparent bg-surface-container-low'
               }`}
             >
-              <img src={img} alt={`${name} - Thumbnail ${i + 1}`} className="w-full h-full object-contain mix-blend-multiply" />
+              <Image src={img} alt={`${name} - Thumbnail ${i + 1}`} fill sizes="80px" className="object-contain mix-blend-multiply" loading="lazy" />
             </button>
           ))}
         </div>

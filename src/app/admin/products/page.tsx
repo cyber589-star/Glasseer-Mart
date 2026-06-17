@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import Image from 'next/image'
 import { Plus, Pencil, Trash2, X, Upload } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import { supabase, supabaseInsert, supabaseUpdate, supabaseDelete } from '@/lib/supabase'
@@ -202,8 +203,8 @@ export default function AdminProducts() {
                 <tr key={p.id} className="border-b border-outline-variant/50 hover:bg-surface-container-low/50 transition-colors">
                   <td className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-surface-bright rounded-lg flex items-center justify-center p-2 flex-shrink-0">
-                        {p.images?.[0] ? <img src={p.images[0]} alt="" className="w-full h-full object-contain mix-blend-multiply" /> : <span className="font-sans text-xs text-on-surface-variant font-medium">{p.name.charAt(0)}</span>}
+                      <div className="w-10 h-10 bg-surface-bright rounded-lg flex items-center justify-center p-2 flex-shrink-0 relative">
+                        {p.images?.[0] ? <Image src={p.images[0]} alt={p.name} fill sizes="40px" className="object-contain mix-blend-multiply" loading="lazy" /> : <span className="font-sans text-xs text-on-surface-variant font-medium">{p.name.charAt(0)}</span>}
                       </div>
                       <span className="font-sans text-body-md text-primary truncate max-w-[160px]">{p.name}</span>
                     </div>

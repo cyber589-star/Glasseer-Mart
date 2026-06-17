@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Container } from '@/components/ui'
 import { siteConfig } from '@/data/products'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'GlaseerMart privacy policy — how we collect, use, and protect your personal information.',

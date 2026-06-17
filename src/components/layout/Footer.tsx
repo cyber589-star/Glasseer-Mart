@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Container } from '@/components/ui'
 import { siteConfig } from '@/data/products'
 
@@ -33,7 +34,7 @@ export function Footer() {
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12">
           <div className="sm:col-span-2 lg:col-span-2">
             <Link href="/" className="mb-6 block">
-              <img src="/images/logo.png" alt="GlaseerMart" className="h-16 w-auto" />
+              <Image src="/images/logo.png" alt="GlaseerMart" width={64} height={64} className="h-16 w-auto" loading="lazy" />
             </Link>
             <p className="font-sans text-body-md text-on-surface-variant mb-6 max-w-sm">
               Premium optical and stylish glasses crafted for the discerning eye. Each frame is a statement of elegance and precision.

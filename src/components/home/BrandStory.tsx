@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Container } from '@/components/ui'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
@@ -37,10 +38,13 @@ export function BrandStory() {
             </Link>
           </div>
           <div className="relative aspect-square bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg">
-            <img
+            <Image
               src="/images/1.PNG"
               alt="GlaseerMart craftsmanship"
-              className="absolute inset-0 w-full h-full object-cover rounded-3xl"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover rounded-3xl"
+              loading="lazy"
             />
           </div>
         </div>

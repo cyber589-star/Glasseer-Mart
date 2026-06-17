@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Container } from '@/components/ui'
 
+export const revalidate = 3600
+
 export const metadata: Metadata = {
   title: 'Terms & Conditions',
   description: 'GlaseerMart terms and conditions — product pricing, orders, shipping, returns, and legal information.',

@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { X } from 'lucide-react'
 import { useCart } from '@/context/CartContext'
 import { formatPrice } from '@/lib/utils'
@@ -11,8 +12,8 @@ export function CartItem({ item }: { item: CartItemType }) {
 
   return (
     <div className="flex gap-6 py-6 border-b border-outline-variant">
-      <Link href={`/shop/${item.product.slug}`} className="w-24 h-24 bg-surface-bright rounded-xl flex items-center justify-center p-4 flex-shrink-0">
-        <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+      <Link href={`/shop/${item.product.slug}`} className="w-24 h-24 bg-surface-bright rounded-xl flex items-center justify-center p-4 flex-shrink-0 relative">
+        <Image src={item.product.images[0]} alt={item.product.name} fill sizes="96px" className="object-contain mix-blend-multiply" loading="lazy" />
       </Link>
       <div className="flex-1 min-w-0">
         <div className="flex justify-between items-start mb-2">

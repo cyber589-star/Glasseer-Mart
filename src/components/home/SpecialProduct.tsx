@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Container } from '@/components/ui'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 
@@ -16,10 +17,13 @@ export function SpecialProduct() {
           </span>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center mt-4">
             <div className="relative aspect-[3/4] bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg">
-              <img
+              <Image
                 src="/images/Capturejjjjj.PNG"
                 alt="Mahira — Special Edition"
-                className="absolute inset-0 w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 50vw"
+                className="object-cover"
+                loading="lazy"
               />
             </div>
             <div>

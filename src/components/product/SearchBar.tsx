@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { Search, X } from 'lucide-react'
 import { products } from '@/data/products'
 
@@ -60,8 +61,8 @@ export function SearchBar({ isOpen, onClose }: SearchBarProps) {
                     onClick={onClose}
                     className="flex items-center gap-4 p-3 rounded-xl hover:bg-surface-container-low transition-colors"
                   >
-                    <div className="w-16 h-16 bg-surface-bright rounded-lg flex items-center justify-center p-3">
-                      <img src={product.images[0]} alt={product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                    <div className="w-16 h-16 bg-surface-bright rounded-lg flex items-center justify-center p-3 relative">
+                      <Image src={product.images[0]} alt={product.name} fill sizes="64px" className="object-contain mix-blend-multiply" loading="lazy" />
                     </div>
                     <div>
                       <p className="font-sans text-body-md text-primary">{product.name}</p>

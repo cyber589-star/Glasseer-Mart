@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { Plus, Pencil, Trash2, X } from 'lucide-react'
 import { categories as initialCategories } from '@/data/products'
 import { useLocalStorage } from '@/lib/useLocalStorage'
@@ -62,8 +63,8 @@ export default function AdminCategories() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {categories.map((cat) => (
           <div key={cat.id} className="bg-white rounded-2xl ambient-shadow overflow-hidden group">
-            <div className="aspect-[4/3] bg-surface-container-high overflow-hidden">
-              <img src={cat.image} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+            <div className="aspect-[4/3] bg-surface-container-high overflow-hidden relative">
+              <Image src={cat.image} alt={cat.name} fill sizes="(max-width: 768px) 50vw, 33vw" className="object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
             </div>
             <div className="p-4 space-y-2">
               <div className="flex items-start justify-between gap-2">

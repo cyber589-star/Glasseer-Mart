@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import Image from 'next/image'
 import { Container, SectionHeader } from '@/components/ui'
 import { useScrollReveal } from '@/hooks/useScrollReveal'
 import { Instagram } from 'lucide-react'
@@ -33,10 +33,13 @@ export function InstagramShowcase() {
                 rel="noopener noreferrer"
                 className="group relative aspect-square bg-surface-container-low rounded-2xl overflow-hidden ambient-shadow hover-lift"
               >
-                <img
+                <Image
                   src={src}
                   alt={`GlaseerMart Instagram ${i + 1}`}
-                  className="absolute inset-0 w-full h-full object-contain mix-blend-multiply p-4 md:p-6 transition-transform duration-500 group-hover:scale-110"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-contain mix-blend-multiply p-4 md:p-6 transition-transform duration-500 group-hover:scale-110"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/10 transition-colors flex items-center justify-center">
                   <Instagram size={24} className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />

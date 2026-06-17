@@ -1,5 +1,8 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { Container, SectionHeader } from '@/components/ui'
+
+export const revalidate = 3600
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -14,11 +17,14 @@ export default function AboutPage() {
         <SectionHeader title="Our Story" subtitle="Where precision meets passion — the GlaseerMart journey." align="center" />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
-          <div className="aspect-square bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg flex items-center justify-center p-16">
-            <img
+          <div className="aspect-square bg-surface-bright rounded-3xl overflow-hidden ambient-shadow-lg relative">
+            <Image
               src="/images/1.PNG"
               alt="GlaseerMart craftsmanship"
-              className="w-full h-full object-cover rounded-3xl"
+              fill
+              sizes="(max-width: 768px) 100vw, 50vw"
+              className="object-cover"
+              loading="lazy"
             />
           </div>
           <div className="space-y-6">

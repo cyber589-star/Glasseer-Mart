@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import Image from 'next/image'
 import { Container } from '@/components/ui'
 import { useCart } from '@/context/CartContext'
 import { formatPrice, generateUUID } from '@/lib/utils'
@@ -457,8 +458,8 @@ export default function CheckoutPage() {
                 return (
                   <div key={item.product.id} className="py-4 border-b border-outline-variant last:border-0">
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-3 flex-shrink-0">
-                        <img src={item.product.images[0]} alt={item.product.name} className="w-full h-full object-contain mix-blend-multiply" />
+                      <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-3 flex-shrink-0 relative">
+                        <Image src={item.product.images[0]} alt={item.product.name} fill sizes="64px" className="object-contain mix-blend-multiply" loading="lazy" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-sans text-body-md text-primary truncate">{item.product.name}</p>
