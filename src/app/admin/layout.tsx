@@ -33,15 +33,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setAuthenticated(localStorage.getItem('admin-auth') === 'true')
-    const keep = ['admin-products', 'admin-auth']
+    const keep = new Set(['admin-products', 'admin-auth'])
+    const keysToRemove: string[] = []
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i)
-      if (key && key.startsWith('admin-') && !keep.includes(key)) {
-        localStorage.removeItem(key)
+      if (key && key.startsWith('admin-') && !keep.has(key)) {
+        keysToRemove.push(key)
       }
     }
-    const emptyKeys = ['admin-orders', 'admin-coupons', 'admin-brands', 'admin-inquiries', 'admin-newsletter', 'admin-media', 'admin-content', 'admin-seo', 'admin-categories', 'admin-customers', 'admin-inventory', 'admin-analytics']
-    emptyKeys.forEach(k => { if (!localStorage.getItem(k)) localStorage.setItem(k, '[]') })
+    keysToRemove.forEach(k => localStorage.removeItem(k))
   }, [])
 
   const login = () => {
