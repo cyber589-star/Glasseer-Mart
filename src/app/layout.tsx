@@ -72,8 +72,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <head>
-        <link rel="preconnect" href="https://zfcbazvseltxqurcmadz.supabase.co" />
-        <link rel="dns-prefetch" href="https://zfcbazvseltxqurcmadz.supabase.co" />
+        <link rel="preconnect" href="https://lwyvsnbkarxpcvykmakk.supabase.co" />
+        <link rel="dns-prefetch" href="https://lwyvsnbkarxpcvykmakk.supabase.co" />
       </head>
       <body className="font-sans text-on-surface antialiased min-h-screen flex flex-col bg-white">
         <script
