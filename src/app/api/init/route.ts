@@ -5,39 +5,40 @@ export const dynamic = 'force-dynamic'
 
 export async function POST() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
+  const key = serviceKey || anonKey
 
-  if (!url || !serviceKey) {
-    return NextResponse.json({ database: 'NO_CREDS', storage: 'NO_CREDS', url: url ? 'set' : 'missing', key: serviceKey ? 'set' : 'missing' })
+  if (!url || !key) {
+    return NextResponse.json({ database: 'NO_CREDS', storage: 'NO_CREDS' })
   }
 
-  const admin = createClient(url, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } })
+  const admin = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } })
   const results: Record<string, string> = {}
 
-  // 1. Storage bucket
+  // Storage bucket
   try {
     const { data: buckets, error: listErr } = await admin.storage.listBuckets()
     if (listErr) {
-      results.storage = `List error: ${listErr.message}`
+      results.storage = `Error: ${listErr.message}`
     } else {
       const exists = buckets?.some(b => b.id === 'product-images')
       if (!exists) {
         const { error } = await admin.storage.createBucket('product-images', { public: true })
-        results.storage = error ? `Create error: ${error.message}` : 'Created'
+        results.storage = error ? `Error: ${error.message}` : 'Created'
       } else {
         results.storage = 'OK'
       }
     }
   } catch (e: any) {
-    results.storage = `Exception: ${e.message}`
+    results.storage = `Error: ${e.message}`
   }
 
-  // 2. Check products table
+  // Check products table
   try {
     const { data, error } = await admin.from('products').select('id').limit(1)
     if (error) {
       results.database = `ERROR: ${error.message}`
-      results.dbCode = error.code || ''
     } else {
       results.database = 'OK'
     }
