@@ -81,6 +81,8 @@ export default function AdminProducts() {
   const fileRef = useRef<HTMLInputElement>(null)
   const [urlInput, setUrlInput] = useState('')
 
+  const [dbReady, setDbReady] = useState<boolean | null>(null)
+
   const load = async () => {
     if (!supabase) { setProducts([]); setLoading(false); return }
     const { data } = await supabase.from('products').select('*').order('created_at', { ascending: false })
@@ -88,18 +90,30 @@ export default function AdminProducts() {
     setLoading(false)
   }
 
-  useEffect(() => { load() }, [])
+  const checkInit = async () => {
+    try {
+      const res = await fetch('/api/init', { method: 'POST' })
+      const data = await res.json()
+      setDbReady(data.database === 'OK')
+    } catch {
+      setDbReady(false)
+    }
+  }
+
+  useEffect(() => { checkInit() }, [])
+  useEffect(() => { if (dbReady) load() }, [dbReady])
 
   const uploadFile = async (file: File): Promise<string> => {
-    if (!supabase) return ''
     setUploading(true)
-    const compressed = await compressImage(file)
-    const ext = compressed.name.split('.').pop()
-    const path = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`
-    const { data } = await supabase.storage.from('product-images').upload(path, compressed)
-    const url = data ? supabase.storage.from('product-images').getPublicUrl(path).data.publicUrl : ''
-    setUploading(false)
-    return url
+    try {
+      const fd = new FormData()
+      fd.append('file', file)
+      const res = await fetch('/api/upload', { method: 'POST', body: fd })
+      const data = await res.json()
+      if (!res.ok) { setError(data.error || 'Upload failed'); return '' }
+      return data.url || ''
+    } catch (e: any) { setError('Upload error: ' + e.message); return '' }
+    finally { setUploading(false) }
   }
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,6 +137,7 @@ export default function AdminProducts() {
 
   const save = async () => {
     if (!form.name.trim()) { setError('Product name is required'); return }
+    if (!supabase) { setError('Supabase not connected'); return }
     setError('')
     setSaving(true)
 
@@ -147,13 +162,17 @@ export default function AdminProducts() {
     if (form.tax) record.tax = form.tax
     record.is_active = true
 
-    if (editing) {
-      const result = await supabaseUpdate<Product>('products', editing.id, record)
-      if (result) setProducts(prev => prev.map(p => p.id === editing.id ? toCamel<Product>(result) : p))
-    } else {
-      const result = await supabaseInsert<Product>('products', record)
-      if (result) setProducts(prev => [toCamel<Product>(result), ...prev])
-    }
+    try {
+      if (editing) {
+        const result = await supabaseUpdate<Product>('products', editing.id, record)
+        if (result) { setProducts(prev => prev.map(p => p.id === editing.id ? toCamel<Product>(result) : p)) }
+        else { setError('Update failed — run database schema in Supabase SQL Editor'); setSaving(false); return }
+      } else {
+        const result = await supabaseInsert<Product>('products', record)
+        if (result) { setProducts(prev => [toCamel<Product>(result), ...prev]) }
+        else { setError('Insert failed — run database schema in Supabase SQL Editor'); setSaving(false); return }
+      }
+    } catch (e: any) { setError('Save error: ' + e.message) }
     setSaving(false)
     setShowModal(false)
   }
@@ -202,6 +221,20 @@ export default function AdminProducts() {
       ) : (
         <input type={type} value={value} onChange={e => onChange(e.target.value)} className="w-full px-4 py-2.5 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary" />
       )}
+    </div>
+  )
+
+  if (dbReady === false) return (
+    <div className="space-y-6">
+      <h2 className="font-serif text-headline-sm text-primary">Products</h2>
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
+        <p className="font-sans text-body-lg text-amber-800 font-medium mb-3">Database Not Initialized</p>
+        <p className="font-sans text-body-md text-amber-700 mb-6 max-w-lg mx-auto">Run the schema SQL in your Supabase SQL Editor to create all tables, storage bucket, and policies.</p>
+        <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-xl font-sans text-label-caps hover:bg-primary transition-all">
+          Open Supabase Dashboard
+        </a>
+        <p className="font-sans text-xs text-amber-600 mt-4">Go to SQL Editor → paste supabase-schema-v2.sql → Run → then refresh this page</p>
+      </div>
     </div>
   )
 
