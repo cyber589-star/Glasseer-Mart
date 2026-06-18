@@ -82,6 +82,7 @@ export default function AdminProducts() {
   const [urlInput, setUrlInput] = useState('')
 
   const [dbReady, setDbReady] = useState<boolean | null>(null)
+  const [dbStatus, setDbStatus] = useState('')
 
   const load = async () => {
     if (!supabase) { setProducts([]); setLoading(false); return }
@@ -94,8 +95,10 @@ export default function AdminProducts() {
     try {
       const res = await fetch('/api/init', { method: 'POST' })
       const data = await res.json()
-      setDbReady(data.database === 'OK')
-    } catch {
+      setDbStatus(JSON.stringify(data))
+      setDbReady(data.database?.startsWith?.('OK'))
+    } catch (e: any) {
+      setDbStatus('Fetch error: ' + e.message)
       setDbReady(false)
     }
   }
@@ -229,11 +232,15 @@ export default function AdminProducts() {
       <h2 className="font-serif text-headline-sm text-primary">Products</h2>
       <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
         <p className="font-sans text-body-lg text-amber-800 font-medium mb-3">Database Not Initialized</p>
-        <p className="font-sans text-body-md text-amber-700 mb-6 max-w-lg mx-auto">Run the schema SQL in your Supabase SQL Editor to create all tables, storage bucket, and policies.</p>
+        <p className="font-sans text-body-md text-amber-700 mb-4 max-w-lg mx-auto">Run the schema SQL in your Supabase SQL Editor to create all tables.</p>
+        {dbStatus && <pre className="font-mono text-xs text-amber-600 bg-amber-100 rounded-lg p-3 mb-4 max-w-lg mx-auto overflow-auto whitespace-pre-wrap">{dbStatus}</pre>}
         <a href="https://supabase.com/dashboard" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-6 py-3 bg-secondary text-white rounded-xl font-sans text-label-caps hover:bg-primary transition-all">
           Open Supabase Dashboard
         </a>
-        <p className="font-sans text-xs text-amber-600 mt-4">Go to SQL Editor → paste supabase-schema-v2.sql → Run → then refresh this page</p>
+        <button onClick={() => checkInit()} className="ml-3 px-6 py-3 border border-outline-variant rounded-xl font-sans text-label-caps text-on-surface-variant hover:bg-surface-container-low transition-all">
+          Re-check
+        </button>
+        <p className="font-sans text-xs text-amber-600 mt-4">SQL Editor → paste supabase-schema-v2.sql → Run → then click Re-check</p>
       </div>
     </div>
   )
