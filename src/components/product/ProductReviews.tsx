@@ -1,7 +1,12 @@
 'use client'
 
-import { Star, BadgeCheck } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Star, BadgeCheck, X, CheckCircle2 } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
+import { generateUUID } from '@/lib/utils'
 import type { ProductReview } from '@/types'
+
+const LOCAL_KEY = 'glaseermart-local-reviews'
 
 interface ProductReviewsProps {
   reviews: ProductReview[]
@@ -9,7 +14,38 @@ interface ProductReviewsProps {
   productId: string
 }
 
-export function ProductReviews({ reviews, productName, productId }: ProductReviewsProps) {
+function loadLocal(): Record<string, ProductReview[]> {
+  try {
+    return JSON.parse(window.localStorage.getItem(LOCAL_KEY) || '{}')
+  } catch {
+    return {}
+  }
+}
+
+function saveLocal(productId: string, review: ProductReview) {
+  try {
+    const all = loadLocal()
+    all[productId] = [...(all[productId] || []), review]
+    window.localStorage.setItem(LOCAL_KEY, JSON.stringify(all))
+  } catch {}
+}
+
+export function ProductReviews({ reviews: reviewsProp, productName, productId }: ProductReviewsProps) {
+  const [reviews, setReviews] = useState<ProductReview[]>(reviewsProp)
+  const [showForm, setShowForm] = useState(false)
+  const [name, setName] = useState('')
+  const [rating, setRating] = useState(0)
+  const [comment, setComment] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  useEffect(() => {
+    const local = loadLocal()[productId] || []
+    const dbIds = new Set(reviewsProp.map((r) => r.id))
+    setReviews([...local.filter((r) => !dbIds.has(r.id)), ...reviewsProp])
+  }, [reviewsProp, productId])
+
   const average =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -20,14 +56,85 @@ export function ProductReviews({ reviews, productName, productId }: ProductRevie
     if (r.rating >= 1 && r.rating <= 5) distribution[5 - r.rating]++
   })
 
+  const openForm = () => {
+    setError('')
+    setSuccess('')
+    setShowForm(true)
+  }
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !comment.trim()) {
+      setError('Please enter your name and your review.')
+      return
+    }
+    if (rating < 1) {
+      setError('Please select a star rating.')
+      return
+    }
+    setError('')
+    setSubmitting(true)
+
+    const review: ProductReview = {
+      id: generateUUID(),
+      productId,
+      customerName: name.trim(),
+      rating,
+      comment: comment.trim(),
+      isFeatured: false,
+      date: new Date().toISOString().split('T')[0],
+    }
+
+    let savedLocally = false
+    if (supabase) {
+      const { error: insertError } = await supabase.from('reviews').insert({
+        product_id: productId,
+        customer_name: review.customerName,
+        rating,
+        comment: review.comment,
+        is_approved: true,
+        is_featured: false,
+      })
+      if (insertError) {
+        console.error('Failed to save review:', insertError)
+        saveLocal(productId, review)
+        savedLocally = true
+      }
+    } else {
+      saveLocal(productId, review)
+      savedLocally = true
+    }
+
+    setReviews((prev) => [review, ...prev])
+    setShowForm(false)
+    setSubmitting(false)
+    setName('')
+    setRating(0)
+    setComment('')
+    setSuccess(
+      savedLocally
+        ? 'Thank you! Your review has been saved and is now visible on this product.'
+        : 'Thank you! Your review has been posted to this product.'
+    )
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <h2 className="font-serif text-headline-sm text-primary">Customer Reviews</h2>
-        <button className="px-6 py-3 bg-primary text-on-primary rounded-lg font-sans text-label-caps transition-all duration-300 hover:bg-secondary">
+        <button
+          onClick={openForm}
+          className="px-6 py-3 bg-primary text-on-primary rounded-lg font-sans text-label-caps transition-all duration-300 hover:bg-secondary"
+        >
           Write a Review
         </button>
       </div>
+
+      {success && (
+        <div className="flex items-center gap-3 px-4 py-3 bg-secondary/10 border border-secondary/20 rounded-xl">
+          <CheckCircle2 size={18} className="text-secondary flex-shrink-0" />
+          <p className="font-sans text-sm text-secondary">{success}</p>
+        </div>
+      )}
 
       {reviews.length === 0 ? (
         <div className="text-center py-16">
@@ -125,6 +232,74 @@ export function ProductReviews({ reviews, productName, productId }: ProductRevie
             ))}
           </div>
         </>
+      )}
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowForm(false)} />
+          <div className="relative bg-white rounded-2xl shadow-ambient-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-serif text-headline-sm text-primary">Write a Review</h3>
+              <button onClick={() => setShowForm(false)} className="p-1 text-on-surface-variant hover:text-primary">
+                <X size={20} />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block font-sans text-label-caps text-primary mb-1.5">Your Name</label>
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full px-4 py-2.5 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary"
+                />
+              </div>
+              <div>
+                <label className="block font-sans text-label-caps text-primary mb-1.5">Your Rating</label>
+                <div className="flex items-center gap-1">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <button key={s} type="button" onClick={() => setRating(s)} className="p-1 hover:scale-110 transition-transform">
+                      <Star
+                        size={26}
+                        className={
+                          s <= rating
+                            ? 'fill-secondary text-secondary'
+                            : 'fill-surface-container-high text-surface-container-high'
+                        }
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label className="block font-sans text-label-caps text-primary mb-1.5">Your Review</label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={4}
+                  placeholder={`Share your experience with ${productName}...`}
+                  className="w-full px-4 py-2.5 bg-surface-container-low rounded-xl border-0 focus:ring-2 focus:ring-secondary font-sans text-body-md text-primary resize-none"
+                />
+              </div>
+              {error && <p className="font-sans text-sm text-red-600">{error}</p>}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={handleSubmit}
+                  disabled={submitting}
+                  className="flex-1 px-5 py-3 bg-secondary text-white rounded-xl font-sans text-label-caps hover:bg-primary transition-all disabled:opacity-60"
+                >
+                  {submitting ? 'Submitting...' : 'Submit Review'}
+                </button>
+                <button
+                  onClick={() => setShowForm(false)}
+                  className="px-5 py-3 border border-outline-variant rounded-xl font-sans text-label-caps text-on-surface-variant hover:bg-surface-container-low transition-all"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
